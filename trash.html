@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Trash | My-Cloud-Doc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 30px 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  animation: fadeIn 0.5s ease;
+}
+
+.header {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  animation: slideIn 0.6s ease;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e1;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e293b;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn:hover {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  transform: translateX(-3px);
+}
+
+.header h1 {
+  font-size: 32px;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.empty-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.empty-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.warning-banner {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.7s ease;
+}
+
+.warning-icon {
+  font-size: 24px;
+}
+
+.warning-text {
+  color: #92400e;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.warning-text strong {
+  font-weight: 700;
+  color: #78350f;
+}
+
+.controls {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  animation: slideIn 0.8s ease;
+}
+
+.controls-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-wrapper {
+  flex: 1;
+  min-width: 250px;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.controls input {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s;
+}
+
+.controls input:focus {
+  outline: none;
+  border-color: #4e54c8;
+  box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.1);
+}
+
+.sort-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-label {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.controls select {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  background: white;
+  transition: all 0.3s;
+  min-width: 200px;
+}
+
+.controls select:focus {
+  outline: none;
+  border-color: #4e54c8;
+  box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.1);
+}
+
+.controls select:hover {
+  border-color: #cbd5e1;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  animation: slideIn 0.9s ease;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  flex: 1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-icon {
+  font-size: 32px;
+}
+
+.stat-content h3 {
+  font-size: 24px;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.stat-content p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.trash-list {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  animation: fadeIn 1s ease;
+}
+
+.trash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.trash-item {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s;
+  animation: fadeIn 0.5s ease;
+}
+
+.trash-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  border-color: #4e54c8;
+}
+
+.file-icon {
+  font-size: 40px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.file-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1e293b;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-meta {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.file-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.restore {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #10b981;
+  border: 1px solid #86efac;
+}
+
+.restore:hover {
+  background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.delete {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.delete:hover {
+  background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.empty-state-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 20px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+/* List View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.view-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.view-btn:hover {
+  background: #f8fafc;
+}
+
+.view-btn.active {
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+  color: white;
+  border-color: #4e54c8;
+}
+
+/* List View Style */
+.trash-list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trash-item-list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: all 0.3s;
+}
+
+.trash-item-list:hover {
+  transform: translateX(8px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-color: #4e54c8;
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.item-icon {
+  font-size: 32px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.item-meta {
+  font-size: 13px;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .controls-row {
+    flex-direction: column;
+  }
+  
+  .search-wrapper,
+  .controls select {
+    width: 100%;
+  }
+  
+  .stats {
+    flex-direction: column;
+  }
+  
+  .trash-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="goBack()">
+        <span>←</span> Back to Dashboard
+      </button>
+      <h1><span>🗑️</span> Trash</h1>
+    </div>
+    <button class="empty-btn" id="emptyBtn" onclick="emptyTrash()">Empty Trash</button>
+  </div>
+
+  <div class="warning-banner">
+    <span class="warning-icon">⚠️</span>
+    <div class="warning-text">
+      <strong id="trashCountBanner">0</strong> file(s) in Trash • Files are auto-deleted after 30 days
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-icon">📁</span>
+      <div class="stat-content">
+        <h3 id="totalFiles">0</h3>
+        <p>Total Files</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">💾</span>
+      <div class="stat-content">
+        <h3 id="totalSize">0 KB</h3>
+        <p>Total Size</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="controls-row">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search files in trash..." oninput="renderTrash()">
+      </div>
+      
+      <div class="sort-wrapper">
+        <span class="sort-label">Sort by:</span>
+        <select id="sortSelect" onchange="renderTrash()">
+          <option value="date">Deletion Date (Newest)</option>
+          <option value="dateOld">Deletion Date (Oldest)</option>
+          <option value="name">Name (A-Z)</option>
+          <option value="nameDesc">Name (Z-A)</option>
+        </select>
+      </div>
+
+      <div class="view-toggle">
+        <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')">⊞</button>
+        <button class="view-btn" id="listViewBtn" onclick="setView('list')">☰</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="trash-list">
+    <div class="trash-grid" id="trashContainer"></div>
+  </div>
+
+</div>
+
+
+<script>
+// LOAD DATA FROM LOCAL STORAGE ON START
+// If no data exists, we provide default sample data
+const defaultData = [
+  { id: '1', name: 'Old_Report_2023.pdf', size: '2.4 MB', deletedAt: '2025-01-10' },
+  { id: '2', name: 'Draft_Proposal.docx', size: '856 KB', deletedAt: '2025-01-12' },
+  { id: '3', name: 'Screenshot_2024.png', size: '1.2 MB', deletedAt: '2025-01-15' }
+];
+
+let appState = {
+  trash: JSON.parse(localStorage.getItem('myCloudTrash')) || defaultData,
+  viewMode: 'grid'
+};
+
+function goBack() {
+  window.history.back();
+}
+
+// SAVE DATA TO LOCAL STORAGE
+function saveTrash() {
+  localStorage.setItem('myCloudTrash', JSON.stringify(appState.trash));
+}
+
+function calculateTotalSize() {
+  return appState.trash.reduce((total, file) => {
+    const size = parseFloat(file.size);
+    return total + (file.size.includes('MB') ? size * 1024 : size);
+  }, 0);
+}
+
+function formatSize(kb) {
+  if (kb < 1024) return kb.toFixed(2) + ' KB';
+  return (kb / 1024).toFixed(2) + ' MB';
+}
+
+function renderTrash() {
+  const container = document.getElementById("trashContainer");
+  const emptyBtn = document.getElementById("emptyBtn");
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const sort = document.getElementById("sortSelect").value;
+
+  // Update stats
+  document.getElementById("totalFiles").textContent = appState.trash.length;
+  document.getElementById("trashCountBanner").textContent = appState.trash.length;
+  document.getElementById("totalSize").textContent = formatSize(calculateTotalSize());
+
+  // Filter
+  let filtered = appState.trash.filter(f =>
+    f.name.toLowerCase().includes(search)
+  );
+
+  // Sort
+  switch(sort) {
+    case "name":
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "nameDesc":
+      filtered.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "dateOld":
+      filtered.sort((a, b) => new Date(a.deletedAt) - new Date(b.deletedAt));
+      break;
+    default: // date (newest)
+      filtered.sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
+  }
+
+  emptyBtn.disabled = appState.trash.length === 0;
+
+  // Empty state
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🗑️</div>
+        <h3>Trash is empty</h3>
+        <p>Deleted files will appear here</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Update container class based on view mode
+  container.className = appState.viewMode === 'grid' ? 'trash-grid' : 'trash-list-view';
+
+  // Render items
+  if (appState.viewMode === 'grid') {
+    container.innerHTML = filtered.map(file => `
+      <div class="trash-item">
+        <div class="file-icon">📄</div>
+        <div class="file-name" title="${file.name}">${file.name}</div>
+        <div class="file-meta">
+          <div class="file-meta-item">📦 ${file.size}</div>
+          <div class="file-meta-item">🗓️ Deleted: ${file.deletedAt}</div>
+        </div>
+        <div class="actions">
+          <button class="restore" onclick="restoreFile('${file.id}')">Restore</button>
+          <button class="delete" onclick="deleteFile('${file.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    container.innerHTML = filtered.map(file => `
+      <div class="trash-item-list">
+        <div class="item-info">
+          <span class="item-icon">📄</span>
+          <div class="item-details">
+            <div class="item-name">${file.name}</div>
+            <div class="item-meta">${file.size} • Deleted on ${file.deletedAt}</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="restore" onclick="restoreFile('${file.id}')">Restore</button>
+          <button class="delete" onclick="deleteFile('${file.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function setView(mode) {
+  appState.viewMode = mode;
+  document.getElementById('gridViewBtn').classList.toggle('active', mode === 'grid');
+  document.getElementById('listViewBtn').classList.toggle('active', mode === 'list');
+  renderTrash();
+}
+
+function restoreFile(id) {
+  const index = appState.trash.findIndex(f => f.id === id);
+  if (index === -1) return;
+
+  const file = appState.trash[index];
+  appState.trash.splice(index, 1);
+
+  alert(`"${file.name}" has been restored to Documents`);
+  saveTrash(); // Saves change permanently
+  renderTrash();
+}
+
+function deleteFile(id) {
+  const file = appState.trash.find(f => f.id === id);
+  if (!file) return;
+  
+  if (!confirm(`Permanently delete "${file.name}"? This action cannot be undone.`)) return;
+  
+  appState.trash = appState.trash.filter(f => f.id !== id);
+  saveTrash(); // Saves change permanently
+  renderTrash();
+}
+
+function emptyTrash() {
+  if (appState.trash.length === 0) return;
+  if (!confirm(`Permanently delete all ${appState.trash.length} file(s)? This action cannot be undone.`)) return;
+  
+  appState.trash = [];
+  saveTrash(); // Saves change permanently
+  renderTrash();
+}
+// Always look at 'myCloudTrash' for deleted items
+function getTrash() {
+    return JSON.parse(localStorage.getItem('myCloudTrash')) || [];
+}
+
+function restoreFile(id) {
+    let trash = getTrash();
+    let docs = JSON.parse(localStorage.getItem('documents')) || [];
+    
+    const index = trash.findIndex(f => f.id === id);
+    if (index === -1) return;
+
+    const file = trash.splice(index, 1)[0];
+    delete file.deletedAt; // Remove trash timestamp
+    
+    // Put back into documents
+    docs.push(file);
+    
+    // Update both keys in localStorage
+    localStorage.setItem('documents', JSON.stringify(docs));
+    localStorage.setItem('myCloudTrash', JSON.stringify(trash));
+    
+    alert(`"${file.name}" restored to Documents`);
+    renderTrash();
+}
+
+function renderTrash() {
+    const container = document.getElementById('trashContainer');
+    const trash = getTrash();
+    container.innerHTML = '';
+
+    if (trash.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h2>Trash is empty</h2></div>';
+        return;
+    }
+
+    trash.forEach(file => {
+        const card = document.createElement('div');
+        card.className = 'trash-card';
+        card.innerHTML = `
+            <span class="file-icon">📄</span>
+            <div class="file-name">${file.name}</div>
+            <div class="file-date">Deleted: ${file.deletedAt}</div>
+            <div class="actions">
+                <button class="btn-restore" onclick="restoreFile('${file.id}')">Restore</button>
+                <button class="btn-delete" onclick="deletePermanently('${file.id}')">Delete</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Initial render
+renderTrash();
+</script>
+
+</body>
+</html>
