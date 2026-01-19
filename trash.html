@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trash | MyCloudDoc</title>
+  <title>Trash | My-Cloud-Doc</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
   <style>
     * {
       margin: 0;
@@ -14,7 +15,7 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #f0f4ff 0%, #e6e9ff 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
       color: #1e1e2f;
       min-height: 100vh;
       padding: 24px;
@@ -25,13 +26,13 @@
       margin: 0 auto;
     }
 
-    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 28px;
       gap: 16px;
+      flex-wrap: wrap;
     }
 
     .back-btn {
@@ -41,31 +42,32 @@
       padding: 10px 18px;
       font-weight: 600;
       font-size: 14px;
-      color: #4a55b9;
+      color: #1e40af;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
       transition: all 0.25s ease;
+      text-decoration: none;
     }
 
     .back-btn:hover {
       background: #f8f9ff;
       transform: translateX(-2px);
-      box-shadow: 0 4px 12px rgba(74, 85, 185, 0.1);
+      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
     }
 
     .page-title {
       font-size: 28px;
       font-weight: 700;
-      color: #2d3748;
+      color: #fff;
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
     .empty-btn {
-      background: #ef4444;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       color: white;
       border: none;
       border-radius: 12px;
@@ -78,7 +80,7 @@
     }
 
     .empty-btn:hover:not(:disabled) {
-      background: #dc2626;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
       transform: translateY(-2px);
       box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
     }
@@ -90,9 +92,8 @@
       box-shadow: none;
     }
 
-    /* Warning Banner */
     .warning-banner {
-      background: #fff9db;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
       border-left: 4px solid #fbbf24;
       padding: 14px 20px;
       border-radius: 0 10px 10px 0;
@@ -100,9 +101,9 @@
       font-size: 14px;
       color: #854d02;
       font-weight: 500;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.1);
     }
 
-    /* Stats */
     .stats {
       display: flex;
       gap: 20px;
@@ -111,47 +112,60 @@
 
     .stat-card {
       background: white;
-      border-radius: 14px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 20px;
       flex: 1;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
-      gap: 14px;
-      transition: transform 0.2s ease;
+      gap: 16px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.8);
     }
 
     .stat-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     }
 
     .stat-icon {
-      font-size: 28px;
-      color: #6366f1;
+      font-size: 32px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .stat-value {
-      font-size: 22px;
+      font-size: 28px;
       font-weight: 700;
-      color: #1e293b;
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-label {
       font-size: 13px;
       color: #64748b;
+      font-weight: 500;
+      margin-top: 4px;
     }
 
-    /* Controls */
     .controls {
       background: white;
-      padding: 18px;
-      border-radius: 14px;
+      padding: 20px;
+      border-radius: 16px;
       margin-bottom: 28px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
       display: flex;
       flex-wrap: wrap;
       gap: 16px;
       align-items: center;
+      border: 1px solid rgba(255,255,255,0.8);
     }
 
     .search-box {
@@ -162,16 +176,18 @@
 
     .search-box input {
       width: 100%;
-      padding: 11px 12px 11px 40px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
+      padding: 12px 12px 12px 42px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
     }
 
     .search-box input:focus {
-      border-color: #6366f1;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
     }
 
     .search-icon {
@@ -180,133 +196,185 @@
       top: 50%;
       transform: translateY(-50%);
       color: #94a3b8;
+      font-size: 18px;
     }
 
     .sort-select {
-      padding: 11px 16px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
       background: white;
       font-size: 14px;
       outline: none;
       min-width: 180px;
-      transition: border-color 0.2s;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
     }
 
     .sort-select:focus {
-      border-color: #6366f1;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
     }
 
-    /* Trash List */
     .trash-list {
       background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255,255,255,0.8);
     }
 
     .trash-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 22px;
+      gap: 24px;
     }
 
     .trash-item {
-      background: #fafbff;
-      border: 1px solid #eaeffd;
-      border-radius: 14px;
-      padding: 20px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .trash-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .trash-item:hover::before {
+      transform: scaleY(1);
     }
 
     .trash-item:hover {
-      border-color: #c7ceff;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+      border-color: #ef4444;
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(239, 68, 68, 0.15);
+      background: white;
     }
 
     .file-icon {
-      font-size: 36px;
+      font-size: 48px;
       text-align: center;
-      margin-bottom: 14px;
-      color: #4f46e5;
+      margin-bottom: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .trash-item:hover .file-icon {
+      transform: scale(1.1);
     }
 
     .file-name {
       font-weight: 600;
       font-size: 16px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: #1e293b;
     }
 
     .file-meta {
       font-size: 13px;
       color: #64748b;
-      margin-bottom: 16px;
-      line-height: 1.4;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .file-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
     }
 
     .actions {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
 
     .action-btn {
-      flex: 1;
-      padding: 9px;
+      padding: 11px;
       border-radius: 10px;
       font-weight: 600;
       font-size: 13px;
       cursor: pointer;
       border: none;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
     .restore-btn {
-      background: #dcfce7;
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
       color: #16a34a;
+      border: 1px solid #86efac;
     }
 
     .restore-btn:hover {
-      background: #bbf7d0;
+      background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3);
     }
 
     .delete-btn {
-      background: #fee2e2;
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
       color: #dc2626;
+      border: 1px solid #fca5a5;
     }
 
     .delete-btn:hover {
-      background: #fecaca;
+      background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
     }
 
-    /* Empty State */
     .empty-state {
       text-align: center;
-      padding: 60px 20px;
+      padding: 80px 20px;
       color: #94a3b8;
     }
 
     .empty-icon {
-      font-size: 60px;
-      margin-bottom: 16px;
-      opacity: 0.6;
+      font-size: 72px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
     }
 
     .empty-title {
-      font-size: 20px;
+      font-size: 24px;
       color: #64748b;
-      margin-bottom: 8px;
-      font-weight: 600;
+      margin-bottom: 10px;
+      font-weight: 700;
     }
 
     .empty-desc {
-      font-size: 14px;
+      font-size: 15px;
+      color: #94a3b8;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
       .header {
         flex-direction: column;
@@ -334,16 +402,16 @@
   <div class="container">
     <div class="header">
       <div>
-        <button class="back-btn" onclick="goBack()" aria-label="Back to Dashboard">
-          ← Back
-        </button>
-        <h1 class="page-title">🗑️ Trash</h1>
+        <a href="home.html" class="back-btn" aria-label="Back to Dashboard">
+          ← Back to Dashboard
+        </a>
       </div>
-      <button class="empty-btn" id="emptyBtn" onclick="emptyTrash()">Empty Trash</button>
+      <h1 class="page-title">🗑️ Trash</h1>
+      <button class="empty-btn" id="emptyBtn" onclick="emptyTrash()" disabled>🔥 Empty Trash</button>
     </div>
 
     <div class="warning-banner">
-      ⚠️ Files in trash are automatically deleted after 30 days.
+      ⚠️ <strong id="trashCount">0</strong> file(s) in trash • Files are auto-deleted after 30 days
     </div>
 
     <div class="stats">
@@ -351,11 +419,11 @@
         <span class="stat-icon">📄</span>
         <div>
           <div class="stat-value" id="totalFiles">0</div>
-          <div class="stat-label">Files</div>
+          <div class="stat-label">Files in Trash</div>
         </div>
       </div>
       <div class="stat-card">
-        <span class="stat-icon">📊</span>
+        <span class="stat-icon">💾</span>
         <div>
           <div class="stat-value" id="totalSize">0 KB</div>
           <div class="stat-label">Total Size</div>
@@ -378,303 +446,258 @@
 
     <div class="trash-list">
       <div class="trash-grid" id="trashContainer">
-        <!-- Items rendered here -->
+        <div class="empty-state">
+          <div class="empty-icon">🗑️</div>
+          <div class="empty-title">Loading trash...</div>
+          <div class="empty-desc">Please wait...</div>
+        </div>
       </div>
     </div>
   </div>
 
- <script>
+  <script>
     // ========== APPWRITE CONFIG ==========
     const client = new Appwrite.Client()
-        .setEndpoint("https://fra.cloud.appwrite.io/v1")
-        .setProject("6956479a002cb6075a9d");
+      .setEndpoint("https://fra.cloud.appwrite.io/v1")
+      .setProject("6956479a002cb6075a9d");
+
     const account = new Appwrite.Account(client);
     const storage = new Appwrite.Storage(client);
     const databases = new Appwrite.Databases(client);
+
     const BUCKET_ID = "6957d9df0019e749a227";
     const DATABASE_ID = "6956ba3a003ab5b4406a";
     const COLLECTION_ID = "files";
+
     let userId = null;
+    let trashDocuments = [];
 
     // ========== INIT ==========
     async function init() {
-        try {
-            const user = await account.get();
-            userId = user.$id;
-            document.getElementById('userName').textContent = user.name || 'User';
-            document.getElementById('userAvatar').textContent = (user.name || 'U').charAt(0).toUpperCase();
-            await renderTrash();
-            await updateStorageBar();
-        } catch (error) {
-            console.error("Auth failed:", error);
-            window.location.href = "index.html";
-        }
+      try {
+        const user = await account.get();
+        userId = user.$id;
+        await loadTrash();
+      } catch (error) {
+        console.error("Auth failed:", error);
+        window.location.href = "index.html";
+      }
     }
 
-    // ========== RENDER TRASHED FILES ==========
-    async function renderTrash() {
-        const container = document.getElementById('trashContainer');
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const sort = document.getElementById('sortSelect').value;
+    // ========== LOAD TRASH FROM APPWRITE ==========
+    async function loadTrash() {
+      try {
+        const res = await databases.listDocuments(
+          DATABASE_ID,
+          COLLECTION_ID,
+          [
+            Appwrite.Query.equal("userId", userId),
+            Appwrite.Query.equal("isDeleted", true),
+            Appwrite.Query.orderDesc("deletedAt")
+          ]
+        );
         
-        try {
-            const res = await databases.listDocuments(
-                DATABASE_ID,
-                COLLECTION_ID,
-                [
-                    Appwrite.Query.equal("userId", userId),
-                    Appwrite.Query.equal("isTrashed", true)
-                ]
-            );
-            
-            let docs = res.documents;
-            
-            // Filter
-            docs = docs.filter(doc => doc.fileName.toLowerCase().includes(searchTerm));
-            
-            // Sort
-            if (sort === 'name') docs.sort((a, b) => a.fileName.localeCompare(b.fileName));
-            else if (sort === 'nameDesc') docs.sort((a, b) => b.fileName.localeCompare(a.fileName));
-            else if (sort === 'dateOld') docs.sort((a, b) => new Date(a.$createdAt) - new Date(b.$createdAt));
-            else docs.sort((a, b) => new Date(b.$createdAt) - new Date(a.$createdAt)); // newest first
-            
-            // Update stats
-            document.getElementById('totalFiles').textContent = docs.length;
-            document.getElementById('totalSize').textContent = formatSize(docs.reduce((sum, doc) => sum + (doc.fileSize || 0), 0));
-            document.getElementById('emptyBtn').disabled = docs.length === 0;
-            
-            // Empty state
-            if (docs.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🗑️</div>
-                        <div class="empty-title">Trash is empty</div>
-                        <div class="empty-desc">Deleted files will appear here</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Render items
-            container.innerHTML = docs.map(doc => `
-                <div class="trash-item">
-                    <div class="file-icon">${getIconForFile(doc.fileName)}</div>
-                    <div class="file-name" title="${escapeHtml(doc.fileName)}">${escapeHtml(doc.fileName)}</div>
-                    <div class="file-meta">
-                        <div>📦 ${formatFileSize(doc.fileSize)}</div>
-                        <div>🗓️ ${new Date(doc.$createdAt).toLocaleDateString()}</div>
-                    </div>
-                    <div class="actions">
-                        <button class="action-btn restore-btn" onclick="restoreFile('${doc.$id}', '${doc.fileId}')">Restore</button>
-                        <button class="action-btn delete-btn" onclick="permanentDeleteFile('${doc.$id}', '${doc.fileId}', '${escapeHtml(doc.fileName)}')">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-            
-        } catch (error) {
-            console.error("Load trash error:", error);
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">⚠️</div>
-                    <div class="empty-title">Failed to load trash</div>
-                    <p>Please try refreshing the page</p>
-                </div>
-            `;
-        }
+        trashDocuments = res.documents;
+        renderTrash();
+      } catch (error) {
+        console.error("Load trash error:", error);
+        document.getElementById('trashContainer').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <div class="empty-title">Error loading trash</div>
+            <div class="empty-desc">${error.message || 'Please try again'}</div>
+          </div>
+        `;
+      }
     }
 
-    // ========== FILE ICON ==========
-    function getIconForFile(name) {
-        const ext = name.split('.').pop().toLowerCase();
-        switch(ext) {
-            case 'pdf': return '📄';
-            case 'doc': case 'docx': return '📘';
-            case 'xls': case 'xlsx': return '📊';
-            case 'png': case 'jpg': case 'jpeg': case 'gif': case 'svg': return '🖼️';
-            case 'txt': return '📝';
-            case 'zip': case 'rar': return '📦';
-            case 'mp4': case 'avi': case 'mov': return '🎥';
-            case 'mp3': case 'wav': return '🎵';
-            default: return '📄';
-        }
-    }
+    // ========== RENDER TRASH ==========
+    function renderTrash() {
+      const container = document.getElementById('trashContainer');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const sort = document.getElementById('sortSelect').value;
+      
+      let filtered = trashDocuments.filter(doc => 
+        doc.fileName.toLowerCase().includes(search)
+      );
 
-    // ========== FORMAT SIZE ==========
-    function formatFileSize(bytes) {
-        if (!bytes || bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-    function formatSize(bytes) {
-        return formatFileSize(bytes);
-    }
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+      // Sort
+      switch(sort) {
+        case 'name':
+          filtered.sort((a, b) => a.fileName.localeCompare(b.fileName));
+          break;
+        case 'nameDesc':
+          filtered.sort((a, b) => b.fileName.localeCompare(a.fileName));
+          break;
+        case 'dateOld':
+          filtered.sort((a, b) => new Date(a.deletedAt) - new Date(b.deletedAt));
+          break;
+        default:
+          filtered.sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
+      }
+
+      // Update stats
+      document.getElementById('totalFiles').textContent = filtered.length;
+      document.getElementById('trashCount').textContent = filtered.length;
+      
+      const totalBytes = filtered.reduce((sum, doc) => sum + (doc.fileSize || 0), 0);
+      document.getElementById('totalSize').textContent = formatFileSize(totalBytes);
+      document.getElementById('emptyBtn').disabled = filtered.length === 0;
+
+      // Empty state
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🗑️</div>
+            <div class="empty-title">Trash is empty</div>
+            <div class="empty-desc">Deleted files will appear here</div>
+          </div>
+        `;
+        return;
+      }
+
+      // Render items
+      container.innerHTML = filtered.map(doc => `
+        <div class="trash-item">
+          <div class="file-icon">${getFileIcon(doc.fileName)}</div>
+          <div class="file-name" title="${escapeHtml(doc.fileName)}">${escapeHtml(doc.fileName)}</div>
+          <div class="file-meta">
+            <div class="file-meta-item">📦 ${formatFileSize(doc.fileSize)}</div>
+            <div class="file-meta-item">🗓️ Deleted: ${formatDate(doc.deletedAt)}</div>
+          </div>
+          <div class="actions">
+            <button class="action-btn restore-btn" onclick="restoreFile('${doc.$id}', '${doc.fileId}', '${escapeHtml(doc.fileName)}')">
+              ↩️ Restore
+            </button>
+            <button class="action-btn delete-btn" onclick="deleteFilePermanently('${doc.$id}', '${doc.fileId}', '${escapeHtml(doc.fileName)}')">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
     // ========== RESTORE FILE ==========
-    async function restoreFile(docId, fileId) {
-        if (!confirm('Restore this file?')) return;
-        try {
-            await databases.updateDocument(
-                DATABASE_ID,
-                COLLECTION_ID,
-                docId,
-                { isTrashed: false }
-            );
-            // Update localStorage
-            const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-            const docIndex = localDocs.findIndex(d => d.id === fileId);
-            if (docIndex !== -1) {
-                localDocs[docIndex].isTrashed = false;
-                localStorage.setItem("documents", JSON.stringify(localDocs));
-            }
-            alert('✅ File restored');
-            await renderTrash();
-            await updateStorageBar();
-        } catch (error) {
-            console.error("Restore error:", error);
-            alert('❌ Failed to restore file');
+    async function restoreFile(docId, fileId, fileName) {
+      try {
+        // Mark as not deleted in Appwrite
+        await databases.updateDocument(DATABASE_ID, COLLECTION_ID, docId, {
+          isDeleted: false,
+          deletedAt: null
+        });
+        
+        // Update localStorage
+        const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
+        const trashDocs = JSON.parse(localStorage.getItem("trash")) || [];
+        
+        const fileToRestore = trashDocs.find(d => d.id === fileId);
+        if (fileToRestore) {
+          fileToRestore.isDeleted = false;
+          delete fileToRestore.deletedAt;
+          localDocs.push(fileToRestore);
+          
+          const updatedTrash = trashDocs.filter(d => d.id !== fileId);
+          localStorage.setItem("trash", JSON.stringify(updatedTrash));
+          localStorage.setItem("documents", JSON.stringify(localDocs));
         }
+        
+        alert(`✅ "${fileName}" restored successfully!`);
+        await loadTrash();
+      } catch (error) {
+        console.error("Restore error:", error);
+        alert("Failed to restore file");
+      }
     }
 
-    // ========== PERMANENT DELETE FILE ==========
-    async function permanentDeleteFile(docId, fileId, fileName) {
-        if (!confirm(`Permanently delete "${fileName}"? This cannot be undone.`)) return;
-        try {
-            // Delete from Appwrite Storage
-            await storage.deleteFile(BUCKET_ID, fileId);
-            // Delete from Appwrite Database
-            await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
-            // Remove from localStorage
-            const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-            const updatedDocs = localDocs.filter(d => d.id !== fileId);
-            localStorage.setItem("documents", JSON.stringify(updatedDocs));
-            alert(`✅ "${fileName}" permanently deleted`);
-            await renderTrash();
-            await updateStorageBar();
-        } catch (error) {
-            console.error("Permanent delete error:", error);
-            alert('❌ Failed to permanently delete file');
-        }
+    // ========== DELETE FILE PERMANENTLY ==========
+    async function deleteFilePermanently(docId, fileId, fileName) {
+      if (!confirm(`Permanently delete "${fileName}"? This action cannot be undone.`)) return;
+      
+      try {
+        // Delete from Appwrite Storage
+        await storage.deleteFile(BUCKET_ID, fileId);
+        
+        // Delete from Appwrite Database
+        await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
+        
+        // Delete from localStorage trash
+        const trashDocs = JSON.parse(localStorage.getItem("trash")) || [];
+        const updatedTrash = trashDocs.filter(d => d.id !== fileId);
+        localStorage.setItem("trash", JSON.stringify(updatedTrash));
+        
+        alert(`🗑️ "${fileName}" permanently deleted!`);
+        await loadTrash();
+      } catch (error) {
+        console.error("Permanent delete error:", error);
+        alert("Failed to permanently delete file");
+      }
     }
 
     // ========== EMPTY TRASH ==========
     async function emptyTrash() {
-        const container = document.getElementById('trashContainer');
-        const trashItems = container.querySelectorAll('.trash-item');
-        if (trashItems.length === 0) {
-            alert('🗑️ Trash is already empty');
-            return;
-        }
-        if (!confirm(`Permanently delete ALL ${trashItems.length} files? This cannot be undone.`)) return;
-        
-        const btn = document.getElementById('emptyBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Emptying...';
-        
-        let successCount = 0;
-        let failCount = 0;
-        
+      if (trashDocuments.length === 0) {
+        alert('🗑️ Trash is already empty');
+        return;
+      }
+      
+      if (!confirm(`Permanently delete all ${trashDocuments.length} file(s)? This action cannot be undone.`)) return;
+      
+      let successCount = 0;
+      
+      for (const doc of trashDocuments) {
         try {
-            const res = await databases.listDocuments(
-                DATABASE_ID,
-                COLLECTION_ID,
-                [
-                    Appwrite.Query.equal("userId", userId),
-                    Appwrite.Query.equal("isTrashed", true)
-                ]
-            );
-            
-            for (const doc of res.documents) {
-                try {
-                    await storage.deleteFile(BUCKET_ID, doc.fileId);
-                    await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, doc.$id);
-                    successCount++;
-                } catch (error) {
-                    console.error(`Failed to delete ${doc.$id}:`, error);
-                    failCount++;
-                }
-            }
-            
-            // Clear localStorage
-            const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-            const remainingDocs = localDocs.filter(doc => !doc.isTrashed);
-            localStorage.setItem("documents", JSON.stringify(remainingDocs));
-            
-            btn.disabled = false;
-            btn.innerHTML = 'Empty Trash';
-            
-            if (failCount > 0) {
-                alert(`⚠️ Emptied trash. ${successCount} deleted, ${failCount} failed.`);
-            } else {
-                alert(`✅ Trash emptied successfully (${successCount} files deleted)`);
-            }
-            
-            await renderTrash();
-            await updateStorageBar();
-            
+          await storage.deleteFile(BUCKET_ID, doc.fileId);
+          await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, doc.$id);
+          successCount++;
         } catch (error) {
-            console.error("Empty trash error:", error);
-            alert('❌ Failed to empty trash');
-            btn.disabled = false;
-            btn.innerHTML = 'Empty Trash';
+          console.error("Failed to delete:", doc.fileName, error);
         }
+      }
+      
+      localStorage.setItem("trash", JSON.stringify([]));
+      
+      alert(`✅ Trash emptied successfully (${successCount} files deleted)`);
+      await loadTrash();
     }
 
-    // ========== UPDATE STORAGE BAR ==========
-    async function updateStorageBar() {
-        try {
-            const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID, [
-                Appwrite.Query.equal("userId", userId)
-            ]);
-            let totalBytes = res.documents.reduce((sum, doc) => sum + (doc.fileSize || 0), 0);
-            const totalMB = totalBytes / (1024 * 1024);
-            const percentage = Math.min((totalMB / (50 * 1024)) * 100, 100);
-            document.getElementById('storageBar').style.width = percentage + '%';
-            document.getElementById('storageText').textContent = `${totalMB.toFixed(2)} MB / 50 GB used`;
-        } catch (error) {
-            console.error("Storage update error:", error);
-        }
+    // ========== UTILS ==========
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    // ========== SEARCH & SORT ==========
-    document.getElementById('searchInput').addEventListener('input', () => {
-        renderTrash();
-    });
-    document.getElementById('sortSelect').addEventListener('change', () => {
-        renderTrash();
-    });
+    function formatDate(dateStr) {
+      if (!dateStr) return 'Unknown';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
 
-    // ========== USER DROPDOWN ==========
-    function toggleUserDropdown() {
-        document.getElementById('userDropdownMenu').classList.toggle('active');
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const icons = {
+        pdf: '📄',
+        doc: '📘', docx: '📘',
+        xls: '📗', xlsx: '📗',
+        jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🖼️',
+        txt: '📝',
+        zip: '📦', rar: '📦',
+        mp4: '🎥', avi: '🎥', mov: '🎥',
+        mp3: '🎵', wav: '🎵'
+      };
+      return icons[ext] || '📄';
     }
-    function goToProfile() {
-        window.location.href = 'profile.html';
-    }
-    function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            account.deleteSession('current').then(() => {
-                window.location.href = 'index.html';
-            });
-        }
-    }
-    document.addEventListener('click', (e) => {
-        const userSection = document.getElementById('userSection');
-        const dropdown = document.getElementById('userDropdownMenu');
-        if (userSection && !userSection.contains(e.target)) {
-            dropdown.classList.remove('active');
-        }
-    });
 
-    // ========== INIT ON LOAD ==========
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ========== START ==========
     document.addEventListener('DOMContentLoaded', init);
-
-</script>
+  </script>
 </body>
 </html>

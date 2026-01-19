@@ -1368,6 +1368,8 @@ function toggleFavorite(fileId, fileName) {
     const status = localDocs[docIndex].isFavorite ? 'added to' : 'removed from';
     const icon = localDocs[docIndex].isFavorite ? '⭐' : '☆';
     alert(`${icon} "${fileName}" ${status} favorites`);
+    // In your toggleFavorite function in documents.html, add this after updating:
+localStorage.setItem('favoritesUpdated', 'true');
     
     renderFiles();
   }
@@ -1635,6 +1637,40 @@ async function updateStorageBar() {
     console.error("Storage update error:", error);
   }
 }
+// ========== NEW: LOAD FROM APPWRITE ON INIT ==========
+async function syncWithAppwrite() {
+  try {
+    const res = await fetch('https://fra.cloud.appwrite.io/v1/database/collections/6956ba3a003ab5b4406a/documents', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Appwrite-Project': '6956479a002cb6075a9d',
+        'X-Appwrite-JWT': localStorage.getItem('appwrite-jwt')
+      },
+      body: JSON.stringify({
+        queries: [
+          JSON.stringify({ method: 'equal', attribute: 'userId', value: userId }),
+          JSON.stringify({ method: 'equal', attribute: 'isDeleted', value: false })
+        ]
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const syncedDocs = data.documents.map(doc => ({
+        id: doc.fileId,
+        name: doc.fileName,
+        size: formatFileSize(doc.fileSize),
+        uploadedAt: new Date(doc.$createdAt).toLocaleDateString(),
+        isFavorite: false,
+        timestamp: new Date(doc.$createdAt).getTime()
+      }));
+      localStorage.setItem("documents", JSON.stringify(syncedDocs));
+      documents = syncedDocs;
+    }
+  } catch (e) {
+    console.warn("Appwrite sync failed, using localStorage");
+  }
+}
 
 // ========== SEARCH & SORT ==========
 document.getElementById('searchInput').addEventListener('input', () => {
@@ -1662,6 +1698,7 @@ function logout() {
     });
   }
 }
+
 
 // Close dropdown when clicking outside
 document.addEventListener('click', (e) => {

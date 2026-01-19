@@ -475,8 +475,9 @@
 
     .two-column {
       display: grid;
-      grid-template-columns: 1fr 320px;
+      grid-template-columns: 1fr 340px;
       gap: 20px;
+      align-items: start;
     }
 
     .recent-section {
@@ -620,56 +621,81 @@
       border-radius: 16px;
       padding: 20px;
       box-shadow: var(--shadow);
+      margin-bottom: 20px;
     }
 
     .favorite-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      background: white;
       border-radius: 8px;
       transition: all 0.2s ease;
-      margin-bottom: 10px;
-      cursor: pointer;
-      background: var(--secondary-color);
-      border: 1px solid var(--border-color);
+      border: 1px solid transparent;
     }
 
     .favorite-item:hover {
-      background: #fffbeb;
-      border-color: var(--accent-color);
-      transform: translateX(8px);
+      background: #fafafa;
+      border-color: var(--border-color);
     }
 
     .favorite-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      background: #fef3c7;
-      color: var(--accent-color);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .favorite-icon.excel {
+      background: #1d6f42;
+      color: white;
+    }
+
+    .favorite-icon.image {
+      background: #4285f4;
+      color: white;
+    }
+
+    .favorite-icon.word {
+      background: #2b579a;
+      color: white;
+    }
+
+    .favorite-icon.pdf {
+      background: #f40f02;
+      color: white;
+    }
+
+    .favorite-icon.default {
+      background: #64748b;
+      color: white;
     }
 
     .favorite-info {
       flex: 1;
+      min-width: 0;
     }
 
     .favorite-name {
-      font-weight: 600;
+      font-weight: 500;
       color: var(--text-color);
-      margin-bottom: 4px;
       font-size: 14px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .favorite-meta {
-      font-size: 12px;
-      color: var(--text-light);
+    .favorite-star {
+      color: #f59e0b;
+      font-size: 20px;
+      flex-shrink: 0;
     }
 
     .backup-section {
@@ -741,16 +767,32 @@
     }
 
     @media (max-width: 1200px) {
-      .two-column { grid-template-columns: 1fr; }
+      .two-column { 
+        grid-template-columns: 1fr; 
+      }
     }
 
     @media (max-width: 768px) {
-      .container { flex-direction: column; }
-      .sidebar { width: 100%; position: static; }
-      .nav-links { display: none; }
-      .header { flex-wrap: wrap; }
-      .action-buttons { flex-direction: column; }
-      .btn { width: 100%; justify-content: center; }
+      .container { 
+        flex-direction: column; 
+      }
+      .sidebar { 
+        width: 100%; 
+        position: static; 
+      }
+      .nav-links { 
+        display: none; 
+      }
+      .header { 
+        flex-wrap: wrap; 
+      }
+      .action-buttons { 
+        flex-direction: column; 
+      }
+      .btn { 
+        width: 100%; 
+        justify-content: center; 
+      }
     }
     
     @keyframes fadeInUp {
@@ -769,9 +811,18 @@
       opacity: 0;
     }
     
-    .recent-item:nth-child(1), .favorite-item:nth-child(1) { animation-delay: 0.05s; }
-    .recent-item:nth-child(2), .favorite-item:nth-child(2) { animation-delay: 0.1s; }
-    .recent-item:nth-child(3), .favorite-item:nth-child(3) { animation-delay: 0.15s; }
+    .recent-item:nth-child(1), .favorite-item:nth-child(1) { 
+      animation-delay: 0.05s; 
+    }
+    .recent-item:nth-child(2), .favorite-item:nth-child(2) { 
+      animation-delay: 0.1s; 
+    }
+    .recent-item:nth-child(3), .favorite-item:nth-child(3) { 
+      animation-delay: 0.15s; 
+    }
+    .recent-item:nth-child(4), .favorite-item:nth-child(4) { 
+      animation-delay: 0.2s; 
+    }
   </style>
 </head>
 <body>
@@ -910,10 +961,16 @@
           <div class="section-title">
             <i class="fas fa-star"></i> Favorites
           </div>
-          <div id="favoritesList">
-            <div class="empty">
-              <div class="empty-icon">⭐</div>
-              <p>No favorites yet</p>
+          <div class="favorites-section">
+            <div class="section-title">
+              <i class="fas fa-star"></i> Favorites
+            </div>
+            <div id="favoritesList">
+              <div class="empty">
+                <div class="empty-icon">⭐</div>
+                <p>Loading favorites...</p>
+              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -961,8 +1018,15 @@ async function init() {
     
     await Promise.all([
       loadRecentDocuments(),
+      loadFavorites(),
       updateStorageInfo()
     ]);
+    
+    // Set up auto-refresh for favorites every 3 seconds
+    setInterval(async () => {
+      await loadFavorites();
+    }, 3000);
+    
   } catch (error) {
     console.error("Auth failed:", error);
     window.location.href = "index.html";
@@ -1041,18 +1105,21 @@ async function startUpload() {
           fileId: fileId,
           fileName: file.name,
           fileSize: file.size,
-          userId: userId
+          userId: userId,
+          isDeleted: false,
+          isFavorite: false
         }
       );
       
-      // ALSO SAVE TO LOCALSTORAGE FOR DOCUMENTS PAGE
+      // ALSO SAVE TO LOCALSTORAGE
       const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
       localDocs.push({
         id: fileId,
         name: file.name,
         size: formatFileSize(file.size),
         uploadedAt: new Date().toISOString(),
-        isFavorite: false // Initialize favorite status
+        isFavorite: false,
+        isDeleted: false
       });
       localStorage.setItem("documents", JSON.stringify(localDocs));
       
@@ -1062,7 +1129,7 @@ async function startUpload() {
       
     } catch (error) {
       console.error("Upload failed:", error);
-      alert(`❌ Failed to upload: ${file.name}`);
+      alert(`❌ Failed to upload: ${file.name}\n\nError: ${error.message || 'Unknown error'}`);
     }
   }
   
@@ -1077,6 +1144,7 @@ async function startUpload() {
   if (successCount > 0) {
     alert(`✅ ${successCount} file(s) uploaded successfully!`);
     await loadRecentDocuments();
+    await loadFavorites();
     await updateStorageInfo();
   }
 }
@@ -1091,6 +1159,7 @@ async function loadRecentDocuments() {
       COLLECTION_ID,
       [
         Appwrite.Query.equal("userId", userId),
+        Appwrite.Query.equal("isDeleted", false),
         Appwrite.Query.orderDesc("$createdAt"),
         Appwrite.Query.limit(3)
       ]
@@ -1130,11 +1199,95 @@ async function loadRecentDocuments() {
   }
 }
 
+// ========== LOAD FAVORITES ==========
+async function loadFavorites() {
+  try {
+    const res = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_ID,
+      [
+        Appwrite.Query.equal("userId", userId),
+        Appwrite.Query.equal("isDeleted", false),
+        Appwrite.Query.equal("isFavorite", true),
+        Appwrite.Query.orderDesc("$createdAt"),
+        Appwrite.Query.limit(4)
+      ]
+    );
+
+    const favoritesList = document.getElementById('favoritesList');
+    if (res.documents.length === 0) {
+      favoritesList.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">⭐</div>
+          <p>No favorites yet</p>
+        </div>`;
+      return;
+    }
+
+    favoritesList.innerHTML = res.documents.map(doc => {
+      const { icon, iconClass } = getFileIcon(doc.fileName);
+      return `
+        <div class="favorite-item" onclick="openFile('${doc.fileId}')">
+          <div class="favorite-icon ${iconClass}">
+            <i class="${icon}"></i>
+          </div>
+          <div class="favorite-info">
+            <div class="favorite-name">${escapeHtml(doc.fileName)}</div>
+          </div>
+          <div class="favorite-star">
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error("Load favorites error:", error);
+    document.getElementById('favoritesList').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">⚠️</div>
+        <p>Failed to load favorites</p>
+      </div>`;
+  }
+}
+
+// ========== GET FILE ICON BASED ON EXTENSION ==========
+function getFileIcon(fileName) {
+  const ext = fileName.split('.').pop().toLowerCase();
+  
+  const iconMap = {
+    // Excel files
+    'xlsx': { icon: 'fas fa-file-excel', iconClass: 'excel' },
+    'xls': { icon: 'fas fa-file-excel', iconClass: 'excel' },
+    'csv': { icon: 'fas fa-file-excel', iconClass: 'excel' },
+    
+    // Image files
+    'png': { icon: 'fas fa-file-image', iconClass: 'image' },
+    'jpg': { icon: 'fas fa-file-image', iconClass: 'image' },
+    'jpeg': { icon: 'fas fa-file-image', iconClass: 'image' },
+    'gif': { icon: 'fas fa-file-image', iconClass: 'image' },
+    'svg': { icon: 'fas fa-file-image', iconClass: 'image' },
+    
+    // Word files
+    'doc': { icon: 'fas fa-file-word', iconClass: 'word' },
+    'docx': { icon: 'fas fa-file-word', iconClass: 'word' },
+    
+    // PDF files
+    'pdf': { icon: 'fas fa-file-pdf', iconClass: 'pdf' },
+    
+    // Default
+    'default': { icon: 'fas fa-file-alt', iconClass: 'default' }
+  };
+  
+  return iconMap[ext] || iconMap['default'];
+}
+
 // ========== UPDATE STORAGE INFO ==========
 async function updateStorageInfo() {
   try {
     const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID, [
-      Appwrite.Query.equal("userId", userId)
+      Appwrite.Query.equal("userId", userId),
+      Appwrite.Query.equal("isDeleted", false)
     ]);
     
     let totalBytes = res.documents.reduce((sum, doc) => sum + (doc.fileSize || 0), 0);
@@ -1155,28 +1308,53 @@ function openFile(fileId) {
   window.open(url, '_blank');
 }
 
+// ========== SOFT DELETE TO TRASH ==========
 async function deleteFile(docId, fileId, fileName) {
-  if (!confirm(`Delete "${fileName}" permanently?`)) return;
+  if (!confirm(`Move "${fileName}" to trash?`)) return;
   
   try {
-    // Delete from Appwrite
-    await storage.deleteFile(BUCKET_ID, fileId);
-    await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
+    // Mark as deleted in Appwrite
+    await databases.updateDocument(DATABASE_ID, COLLECTION_ID, docId, {
+      isDeleted: true,
+      deletedAt: new Date().toISOString()
+    });
     
-    // Delete from localStorage
+    // Update localStorage - move to trash
     const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    const updatedDocs = localDocs.filter(d => d.id !== fileId);
-    localStorage.setItem("documents", JSON.stringify(updatedDocs));
+    const trashDocs = JSON.parse(localStorage.getItem("trash")) || [];
     
-    alert("🗑️ File deleted");
+    const fileToTrash = localDocs.find(d => d.id === fileId);
+    if (fileToTrash) {
+      fileToTrash.isDeleted = true;
+      fileToTrash.deletedAt = new Date().toISOString();
+      trashDocs.push(fileToTrash);
+      
+      const updatedDocs = localDocs.filter(d => d.id !== fileId);
+      localStorage.setItem("documents", JSON.stringify(updatedDocs));
+      localStorage.setItem("trash", JSON.stringify(trashDocs));
+    }
+    
+    alert("🗑️ File moved to trash");
     await loadRecentDocuments();
+    await loadFavorites();
     await updateStorageInfo();
   } catch (error) {
-    console.error("Delete error:", error);
-    alert("Failed to delete file");
+    console.error("Move to trash error:", error);
+    alert("Failed to move file to trash");
   }
 }
 
+// ========== LISTEN FOR STORAGE EVENTS (Cross-tab sync) ==========
+window.addEventListener('storage', (e) => {
+  if (e.key === 'favoritesUpdated') {
+    // Reload favorites when updated from documents page
+    loadFavorites();
+    // Clear the flag
+    localStorage.removeItem('favoritesUpdated');
+  }
+});
+
+// ========== BACKUP FUNCTIONALITY ==========
 function performBackup() {
   alert("✅ Backup completed!");
   document.getElementById('backupStatus').textContent = `Last backup: ${new Date().toLocaleString()}`;
@@ -1225,6 +1403,5 @@ document.addEventListener('click', (e) => {
 // ========== START ==========
 document.addEventListener('DOMContentLoaded', init);
 </script>
-
 </body>
 </html>
