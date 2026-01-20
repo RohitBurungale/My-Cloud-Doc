@@ -966,17 +966,16 @@ async function renderFiles() {
   try {
     // Get all documents for this user
     const res = await databases.listDocuments(
-      DATABASE_ID,
-      COLLECTION_ID,
-      [Appwrite.Query.equal("userId", userId)]
-    );
+  DATABASE_ID,
+  COLLECTION_ID,
+  [
+    Appwrite.Query.equal("userId", userId),
+    Appwrite.Query.equal("isDeleted", false),
+    Appwrite.Query.equal("isFavorite", true)
+  ]
+);
 
-    // Filter only favorites (check localStorage for favorite status)
-    const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    let favoriteDocs = res.documents.filter(doc => {
-      const localDoc = localDocs.find(d => d.id === doc.fileId);
-      return localDoc && localDoc.isFavorite === true;
-    });
+let favoriteDocs = res.documents;
 
     // Apply search filter
     if (searchTerm) {
@@ -1016,7 +1015,8 @@ async function renderFiles() {
 
     container.innerHTML = favoriteDocs.map(doc => `
       <div class="file-card">
-        <div class="fav-indicator" onclick="toggleFavorite('${doc.fileId}', '${escapeHtml(doc.fileName)}')" title="Remove from favorites">
+        <div class="fav-indicator"onclick="toggleFavorite('${doc.$id}', '${escapeHtml(doc.fileName)}')">
+
           <i class="fas fa-star"></i>
         </div>
         <div class="file-icon">${getIconForFile(doc.fileName)}</div>
@@ -1053,25 +1053,28 @@ async function renderFiles() {
   }
 }
 
-// ========== TOGGLE FAVORITE ==========
-async function toggleFavorite(fileId, fileName) {
+// ========== TOGGLE FAVORITE (Appwrite only) ==========
+async function toggleFavorite(docId, fileName) {
   try {
-    // Update in localStorage
-    const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    const docIndex = localDocs.findIndex(d => d.id === fileId);
-    
-    if (docIndex !== -1) {
-      localDocs[docIndex].isFavorite = false;
-      localStorage.setItem("documents", JSON.stringify(localDocs));
-      
-      alert(`⭐ "${fileName}" removed from favorites`);
-      await renderFiles();
-    }
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      docId,
+      { isFavorite: false }
+    );
+
+    // 🔔 notify other pages
+    localStorage.setItem("favoritesChanged", Date.now());
+
+    alert(`⭐ "${fileName}" removed from favorites`);
+    await renderFiles();
+
   } catch (error) {
-    console.error("Toggle favorite error:", error);
-    alert('❌ Failed to update favorite status');
+    console.error("Unfavorite error:", error);
+    alert("Failed to remove from favorites");
   }
 }
+
 
 // ========== FILE ICON ==========
 function getIconForFile(name) {
@@ -1151,9 +1154,7 @@ async function confirmRename() {
       { fileName: newName }
     );
 
-    // Update in localStorage
-    const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    const docIndex = localDocs.findIndex(d => d.id === currentRenameFileId);
+    // 🔔 notify other pages
     if (docIndex !== -1) {
       localDocs[docIndex].name = newName;
       localStorage.setItem("documents", JSON.stringify(localDocs));
@@ -1170,27 +1171,28 @@ async function confirmRename() {
 
 // ========== DELETE FILE ==========
 async function deleteFile(docId, fileId, fileName) {
-  if (!confirm(`Delete "${fileName}" permanently?`)) return;
+  if (!confirm(`Move "${fileName}" to Trash?`)) return;
 
   try {
-    // Delete from Appwrite Storage
-    await storage.deleteFile(BUCKET_ID, fileId);
-    
-    // Delete from Appwrite Database
-    await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      docId,
+      {
+        isDeleted: true,
+        deletedAt: new Date().toISOString()
+      }
+    );
 
-    // Delete from localStorage
-    const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    const updatedDocs = localDocs.filter(d => d.id !== fileId);
-    localStorage.setItem("documents", JSON.stringify(updatedDocs));
-
-    alert(`🗑️ "${fileName}" deleted successfully`);
+    alert(`🗑️ "${fileName}" moved to Trash`);
     await renderFiles();
     await updateStorageBar();
+
   } catch (error) {
-    console.error("Delete error:", error);
-    alert('❌ Failed to delete file');
+    console.error("Trash error:", error);
+    alert("Failed to move file to Trash");
   }
+
 }
 
 // ========== UPDATE STORAGE BAR ==========
@@ -1247,6 +1249,7 @@ document.getElementById('renameModal').addEventListener('click', (e) => {
     closeRenameModal();
   }
 });
+
 
 // ========== INIT ON LOAD ==========
 document.addEventListener('DOMContentLoaded', init);

@@ -1003,9 +1003,117 @@
         grid-template-columns: 1fr;
       }
     }
+/* ===== FORMAL BULK ACTION MODAL ===== */
+.bulk-modal {
+  max-width: 420px;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+/* Header */
+.bulk-header {
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  color: #0f172a;
+}
+
+/* Body */
+.bulk-body {
+  padding: 18px;
+  text-align: left;
+}
+
+.bulk-text {
+  font-size: 14px;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.bulk-subtext {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Actions */
+.bulk-actions {
+  padding: 14px 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Buttons */
+.bulk-btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.bulk-btn:hover {
+  background: #f8fafc;
+}
+
+/* Secondary */
+.bulk-btn.secondary {
+  color: #334155;
+}
+
+/* Danger */
+.bulk-btn.danger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.bulk-btn.danger:hover {
+  background: #b91c1c;
+}
+
+.bulk-card.danger {
+  grid-column: span 2;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  box-shadow: 0 10px 30px rgba(220,38,38,0.45);
+}
   </style>
 </head>
 <body>
+  <!-- Delete Choice Modal -->
+<div id="deleteChoiceModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <i class="fas fa-exclamation-triangle"></i> Delete File
+      </h2>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <p style="font-size:14px;color:#475569;">
+        What do you want to do with<br>
+        <strong id="deleteFileName"></strong>?
+      </p>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn-secondary" onclick="closeDeleteModal()">
+        Cancel
+      </button>
+      <button class="btn-secondary" onclick="moveToTrashConfirmed()">
+        🗑️ Move to Trash
+      </button>
+      <button class="btn-primary" style="background:#dc2626" onclick="deletePermanentlyConfirmed()">
+        ❌ Delete Permanently
+      </button>
+    </div>
+  </div>
+</div>
+
 
 <!-- HEADER (Matching home.html) -->
 <div class="header">
@@ -1091,6 +1199,9 @@
           <div class="select-all-wrapper">
             <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
             <label for="selectAllCheckbox" class="select-all-label">Select All</label>
+            <button class="btn-primary" onclick="openBulkModal()">Actions
+</button>
+
           </div>
           <div class="search-bar">
             <i class="fas fa-search search-icon"></i>
@@ -1105,15 +1216,45 @@
         </div>
       </div>
 
-      <div class="bulk-actions" id="bulkActions">
-        <span class="bulk-actions-text"><i class="fas fa-check-circle"></i> <span id="selectedCount">0</span> file(s) selected</span>
-        <button class="bulk-btn bulk-btn-delete" onclick="bulkDeleteFiles()">
-          <i class="fas fa-trash-alt"></i> Delete Selected
-        </button>
-        <button class="bulk-btn bulk-btn-cancel" onclick="clearSelection()">
-          <i class="fas fa-times"></i> Cancel
-        </button>
-      </div>
+      
+<!-- Bulk Action Modal -->
+<div id="bulkActionModal" class="modal">
+  <div class="modal-content bulk-modal">
+
+    <div class="bulk-header">
+      Bulk actions
+    </div>
+
+    <div class="bulk-body">
+      <p class="bulk-text">
+        <strong><span id="bulkCount">0</span></strong> file(s) selected
+      </p>
+      <p class="bulk-subtext">
+        Choose an action to apply to the selected files.
+      </p>
+    </div>
+
+    <div class="bulk-actions">
+      <button class="bulk-btn secondary" onclick="closeBulkModal()">
+        Cancel
+      </button>
+
+      <button class="bulk-btn" onclick="bulkMoveToTrash()">
+        Move to Trash
+      </button>
+
+      <button class="bulk-btn" onclick="bulkAddToFavorites()">
+        Add to Favorites
+      </button>
+
+      <button class="bulk-btn danger" onclick="bulkDeletePermanent()">
+        Delete Permanently
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
       <div id="files">
         <div class="empty-state">
@@ -1208,36 +1349,18 @@ async function renderFiles() {
 
   try {
     const res = await databases.listDocuments(
-      DATABASE_ID,
-      COLLECTION_ID,
-      [Appwrite.Query.equal("userId", userId)]
-    );
+  DATABASE_ID,
+  COLLECTION_ID,
+  [
+    Appwrite.Query.equal("userId", userId),
+    Appwrite.Query.equal("isDeleted", false)
+  ]
+);
+
+
 
     let docs = res.documents;
     allDocuments = docs; // Store for selection management
-
-    // SYNC WITH LOCALSTORAGE - Initialize if not exists
-    const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    docs.forEach(doc => {
-      const existsInLocal = localDocs.find(d => d.id === doc.fileId);
-      if (!existsInLocal) {
-        // Add missing documents to localStorage
-        localDocs.push({
-          id: doc.fileId,
-          name: doc.fileName,
-          size: formatFileSize(doc.fileSize),
-          uploadedAt: doc.$createdAt,
-          isFavorite: false
-        });
-      }
-    });
-    
-    // Remove documents from localStorage that don't exist in Appwrite
-    const syncedLocalDocs = localDocs.filter(localDoc => 
-      docs.some(doc => doc.fileId === localDoc.id)
-    );
-    localStorage.setItem("documents", JSON.stringify(syncedLocalDocs));
-
     // Filter
     docs = docs.filter(doc => doc.fileName.toLowerCase().includes(searchTerm));
 
@@ -1351,29 +1474,74 @@ function downloadFile(fileId, fileName) {
 
 // ========== CHECK IF FAVORITE ==========
 function isDocFavorite(fileId) {
-  const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-  const doc = localDocs.find(d => d.id === fileId);
-  return doc && doc.isFavorite === true;
+  const doc = allDocuments.find(d => d.fileId === fileId);
+  return doc ? doc.isFavorite === true : false;
 }
 
-// ========== TOGGLE FAVORITE ==========
-function toggleFavorite(fileId, fileName) {
-  const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-  const docIndex = localDocs.findIndex(d => d.id === fileId);
-  
-  if (docIndex !== -1) {
-    localDocs[docIndex].isFavorite = !localDocs[docIndex].isFavorite;
-    localStorage.setItem("documents", JSON.stringify(localDocs));
-    
-    const status = localDocs[docIndex].isFavorite ? 'added to' : 'removed from';
-    const icon = localDocs[docIndex].isFavorite ? '⭐' : '☆';
-    alert(`${icon} "${fileName}" ${status} favorites`);
-    // In your toggleFavorite function in documents.html, add this after updating:
-localStorage.setItem('favoritesUpdated', 'true');
-    
-    renderFiles();
+async function bulkMoveToTrash() {
+  closeBulkModal();
+
+  for (const docId of selectedFiles) {
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      docId,
+      {
+        isDeleted: true,
+        deletedAt: new Date().toISOString()
+      }
+    );
   }
+
+  selectedFiles.clear();
+  alert('🗑️ Files moved to Trash');
+
+  await renderFiles();
+  updateSelectionUI();
 }
+
+async function bulkDeletePermanent() {
+  closeBulkModal();
+
+  if (!confirm('This will permanently delete selected files. Continue?')) return;
+
+  for (const docId of selectedFiles) {
+    const doc = allDocuments.find(d => d.$id === docId);
+    if (!doc) continue;
+
+    await storage.deleteFile(BUCKET_ID, doc.fileId);
+    await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
+  }
+
+  selectedFiles.clear();
+  await renderFiles();
+  updateStorageBar();
+  updateSelectionUI();
+
+  alert('❌ Files permanently deleted');
+}
+async function bulkAddToFavorites() {
+  closeBulkModal();
+
+  for (const docId of selectedFiles) {
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      docId,
+      { isFavorite: true }
+    );
+  }
+
+  selectedFiles.clear();
+  localStorage.setItem("favoritesChanged", Date.now());
+
+  await renderFiles();
+  updateSelectionUI();
+
+  alert('⭐ Files added to Favorites');
+}
+
+
 
 // ========== SELECTION MANAGEMENT ==========
 function toggleFileSelection(docId) {
@@ -1388,52 +1556,36 @@ function toggleFileSelection(docId) {
 }
 
 function updateSelectionUI() {
-    const bulkActions = document.getElementById('bulkActions');
-    const selectedCount = document.getElementById('selectedCount');
-    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-    const selectedBox = document.getElementById('selectedItemsBox');
-    const selectedBoxCount = document.getElementById('selectedBoxCount');
+  const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+  const selectedBox = document.getElementById('selectedItemsBox');
+  const selectedBoxCount = document.getElementById('selectedBoxCount');
 
-    // Update file card visuals
-    allDocuments.forEach(doc => {
-        const card = document.getElementById(`card-${doc.$id}`);
-        if (card) {
-            if (selectedFiles.has(doc.$id)) {
-                card.classList.add('selected');
-                card.querySelector('.file-checkbox').checked = true;
-            } else {
-                card.classList.remove('selected');
-                card.querySelector('.file-checkbox').checked = false;
-            }
-        }
-    });
+  allDocuments.forEach(doc => {
+    const card = document.getElementById(`card-${doc.$id}`);
+    if (!card) return;
 
-    // Show/hide bulk actions & draggable box
-    if (selectedFiles.size > 0) {
-        bulkActions.classList.add('active');
-        selectedCount.textContent = selectedFiles.size;
+    const checkbox = card.querySelector('.file-checkbox');
 
-        // Ensure draggable box is visible
-        selectedBox.classList.add('active');
-        selectedBoxCount.textContent = selectedFiles.size;
+    if (selectedFiles.has(doc.$id)) {
+      card.classList.add('selected');
+      checkbox.checked = true;
     } else {
-        bulkActions.classList.remove('active');
-        selectedBox.classList.remove('active');
+      card.classList.remove('selected');
+      checkbox.checked = false;
     }
+  });
 
-    // Update "Select All" checkbox state
-    if (allDocuments.length > 0) {
-        const allSelected = selectedFiles.size === allDocuments.length;
-        const someSelected = selectedFiles.size > 0 && !allSelected;
-        selectAllCheckbox.checked = allSelected;
-        selectAllCheckbox.indeterminate = someSelected;
-    }
+  if (selectedFiles.size > 0) {
+    selectedBox.classList.add('active');
+    selectedBoxCount.textContent = selectedFiles.size;
+  } else {
+    selectedBox.classList.remove('active');
+  }
 
-  
-  // Update select all checkbox state
   if (allDocuments.length > 0) {
     selectAllCheckbox.checked = selectedFiles.size === allDocuments.length;
-    selectAllCheckbox.indeterminate = selectedFiles.size > 0 && selectedFiles.size < allDocuments.length;
+    selectAllCheckbox.indeterminate =
+      selectedFiles.size > 0 && selectedFiles.size < allDocuments.length;
   }
 }
 
@@ -1443,183 +1595,165 @@ function clearSelection() {
   renderFiles();
 }
 
-// ========== BULK DELETE ==========
-async function bulkDeleteFiles() {
-    if (selectedFiles.size === 0) {
-        alert('⚠️ No files selected');
-        return;
-    }
-    const count = selectedFiles.size;
-    if (!confirm(`Move ${count} file(s) to Trash? They won’t be permanently deleted yet.`)) {
-        return;
-    }
 
-    const deleteBtn = document.querySelector('.bulk-btn-delete');
-    deleteBtn.disabled = true;
-    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Moving to Trash...';
-
-    let successCount = 0;
-    for (const docId of selectedFiles) {
-        try {
-            const doc = allDocuments.find(d => d.$id === docId);
-            if (!doc) continue;
-
-            // Soft delete: mark as trashed
-            await databases.updateDocument(
-                DATABASE_ID,
-                COLLECTION_ID,
-                docId,
-                { isTrashed: true }
-            );
-
-            // Update localStorage
-            const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-            const idx = localDocs.findIndex(d => d.id === doc.fileId);
-            if (idx !== -1) {
-                localDocs[idx].isTrashed = true;
-                localStorage.setItem("documents", JSON.stringify(localDocs));
-            }
-
-            successCount++;
-        } catch (error) {
-            console.error("Bulk soft delete error:", error);
-        }
-    }
-
-    deleteBtn.disabled = false;
-    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Selected';
-    selectedFiles.clear();
-
-    alert(`🗑️ ${successCount} file(s) moved to Trash`);
-    await renderFiles();
-    await updateStorageBar();
-    updateSelectionUI();
+function closeDeleteModal() {
+  document.getElementById('deleteChoiceModal').classList.remove('active');
+  deleteDocId = deleteFileId = deleteFileName = null;
 }
 
 // ========== DELETE SINGLE FILE ==========
-async function deleteFile(docId, fileId, fileName) {
-    if (!confirm(`Permanently delete "${fileName}"? This cannot be undone.`)) return;
-    
-    try {
-        // 1. Delete from Appwrite Storage
-        await storage.deleteFile(BUCKET_ID, fileId);
-        
-        // 2. Delete from Appwrite Database
-        await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
-        
-        // 3. Remove from localStorage
-        const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-        const updatedDocs = localDocs.filter(doc => doc.id !== fileId);
-        localStorage.setItem("documents", JSON.stringify(updatedDocs));
-        
-        alert(`✅ "${fileName}" has been permanently deleted`);
-        await renderFiles();
-        await updateStorageBar();
-        
-    } catch (error) {
-        console.error("Delete error:", error);
-        alert('❌ Failed to delete file');
-    }
+function deleteFile(docId, fileId, fileName) {
+  // 🚫 BLOCK single delete popup during bulk actions
+  if (isBulkAction) return;
+
+  deleteDocId = docId;
+  deleteFileId = fileId;
+  deleteFileName = fileName;
+
+  document.getElementById('deleteFileName').textContent = fileName;
+  document.getElementById('deleteChoiceModal').classList.add('active');
+}
+
+
+function isBulkMode() {
+  return selectedFiles.size > 1;
 }
 
 // ========== BULK DELETE FILES ==========
 async function bulkDeleteFiles() {
-    if (selectedFiles.size === 0) {
-        alert('⚠️ No files selected');
-        return;
-    }
-    
-    const count = selectedFiles.size;
-    if (!confirm(`Permanently delete ${count} file(s)? This cannot be undone.`)) return;
-    
-    const deleteBtn = document.querySelector('.bulk-btn-delete');
-    deleteBtn.disabled = true;
-    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-    
-    let successCount = 0;
-    const errors = [];
-    
-    for (const docId of selectedFiles) {
-        try {
-            const doc = allDocuments.find(d => d.$id === docId);
-            if (!doc) continue;
-            
-            // Delete from Storage
-            await storage.deleteFile(BUCKET_ID, doc.fileId);
-            
-            // Delete from Database  
-            await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
-            
-            successCount++;
-        } catch (error) {
-            console.error(`Failed to delete ${docId}:`, error);
-            errors.push(docId);
-        }
-    }
-    
-    // Update localStorage
-    const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    const remainingDocs = localDocs.filter(doc => 
-        !Array.from(selectedFiles).includes(doc.id)
-    );
-    localStorage.setItem("documents", JSON.stringify(remainingDocs));
-    
-    deleteBtn.disabled = false;
-    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Selected';
-    selectedFiles.clear();
-    
-    if (errors.length > 0) {
-        alert(`⚠️ ${successCount} file(s) deleted successfully. ${errors.length} failed.`);
-    } else {
-        alert(`✅ ${successCount} file(s) permanently deleted`);
-    }
-    
-    await renderFiles();
-    await updateStorageBar();
-    updateSelectionUI();
-}
-async function bulkDeleteFiles() {
-    if (selectedFiles.size === 0) {
-        alert('⚠️ No files selected');
-        return;
-    }
-    
-    const count = selectedFiles.size;
-    if (!confirm(`Move ${count} file(s) to Trash?`)) return;
-    
+  if (selectedFiles.size === 0) {
+    alert('⚠️ No files selected');
+    return;
+  }
+
+  const count = selectedFiles.size;
+  if (!confirm(`Move ${count} file(s) to Trash?`)) return;
+
+  // ✅ tell app: bulk action started
+  isBulkAction = true;
+
+  const deleteBtn = document.querySelector('.bulk-btn-delete');
+  deleteBtn.disabled = true;
+  deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Moving...';
+
+  let successCount = 0;
+  const errors = [];
+
+  for (const docId of selectedFiles) {
     try {
-        const docs = JSON.parse(localStorage.getItem('documents') || '[]');
-        const trash = JSON.parse(localStorage.getItem('trash') || '[]');
-        
-        for (const docId of selectedFiles) {
-            const doc = allDocuments.find(d => d.$id === docId);
-            if (!doc) continue;
-            
-            // Remove from documents
-            const fileIndex = docs.findIndex(d => d.id === doc.fileId);
-            if (fileIndex !== -1) {
-                const deletedFile = docs.splice(fileIndex, 1)[0];
-                // Add to trash
-                trash.push({
-                    ...deletedFile,
-                    deletedAt: new Date().toISOString()
-                });
-            }
+      await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTION_ID,
+        docId,
+        {
+          isDeleted: true,
+          deletedAt: new Date().toISOString()
         }
-        
-        localStorage.setItem('documents', JSON.stringify(docs));
-        localStorage.setItem('trash', JSON.stringify(trash));
-        
-        selectedFiles.clear();
-        alert(`🗑️ ${count} file(s) moved to Trash`);
-        await renderFiles();
-        updateSelectionUI();
-        
-    } catch (error) {
-        console.error("Bulk delete error:", error);
-        alert('❌ Failed to move files to Trash');
+      );
+      successCount++;
+    } catch (err) {
+      console.error('Failed to move:', docId, err);
+      errors.push(docId);
     }
+  }
+
+  // ✅ cleanup
+  selectedFiles.clear();
+  isBulkAction = false; // 🔓 allow single delete again
+
+  document.getElementById('selectAllCheckbox').checked = false;
+  document.getElementById('selectAllCheckbox').indeterminate = false;
+
+  deleteBtn.disabled = false;
+  deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Selected';
+
+  alert(`🗑️ ${successCount} file(s) moved to Trash`);
+
+  await renderFiles();
+  await updateStorageBar();
+  updateSelectionUI();
 }
+
+// ========== MOVE TO TRASH CONFIRMED ==========
+
+async function moveToTrashConfirmed() {
+  try {
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      deleteDocId,
+      {
+        isDeleted: true,
+        deletedAt: new Date().toISOString()
+      }
+    );
+
+    closeDeleteModal();
+    alert(`🗑️ "${deleteFileName}" moved to Trash`);
+    await renderFiles();
+    updateSelectionUI();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to move file to Trash");
+  }
+}
+
+// ========== DELETE PERMANENTLY CONFIRMED ==========
+async function deletePermanentlyConfirmed() {
+  try {
+    // Delete from storage
+    await storage.deleteFile(BUCKET_ID, deleteFileId);
+
+    // Delete from database
+    await databases.deleteDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      deleteDocId
+    );
+
+    closeDeleteModal();
+    alert(`❌ "${deleteFileName}" permanently deleted`);
+    await renderFiles();
+    updateStorageBar();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete file permanently");
+  }
+}
+
+
+
+// ========== TOGGLE FAVORITE (Appwrite only + signal) ==========
+async function toggleFavorite(fileId, fileName) {
+  try {
+    const doc = allDocuments.find(d => d.fileId === fileId);
+    if (!doc) return;
+
+    const newStatus = !doc.isFavorite;
+
+    // Update in Appwrite
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      doc.$id,
+      { isFavorite: newStatus }
+    );
+
+    // 🔔 SIGNAL other pages (Home, Favorites)
+    localStorage.setItem("favoritesChanged", Date.now());
+
+    // Refresh this page
+    await renderFiles();
+
+  } catch (error) {
+    console.error("Favorite toggle error:", error);
+    alert("Failed to update favorite");
+  }
+}
+
+
 // ========== UPDATE STORAGE BAR ==========
 async function updateStorageBar() {
   try {
@@ -1635,40 +1769,6 @@ async function updateStorageBar() {
     document.getElementById('storageText').textContent = `${totalMB.toFixed(2)} MB / 50 GB used`;
   } catch (error) {
     console.error("Storage update error:", error);
-  }
-}
-// ========== NEW: LOAD FROM APPWRITE ON INIT ==========
-async function syncWithAppwrite() {
-  try {
-    const res = await fetch('https://fra.cloud.appwrite.io/v1/database/collections/6956ba3a003ab5b4406a/documents', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': '6956479a002cb6075a9d',
-        'X-Appwrite-JWT': localStorage.getItem('appwrite-jwt')
-      },
-      body: JSON.stringify({
-        queries: [
-          JSON.stringify({ method: 'equal', attribute: 'userId', value: userId }),
-          JSON.stringify({ method: 'equal', attribute: 'isDeleted', value: false })
-        ]
-      })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const syncedDocs = data.documents.map(doc => ({
-        id: doc.fileId,
-        name: doc.fileName,
-        size: formatFileSize(doc.fileSize),
-        uploadedAt: new Date(doc.$createdAt).toLocaleDateString(),
-        isFavorite: false,
-        timestamp: new Date(doc.$createdAt).getTime()
-      }));
-      localStorage.setItem("documents", JSON.stringify(syncedDocs));
-      documents = syncedDocs;
-    }
-  } catch (e) {
-    console.warn("Appwrite sync failed, using localStorage");
   }
 }
 
@@ -1792,25 +1892,55 @@ function dragEnd(e) {
     );
     
     trashZone.classList.remove('drag-over');
-    
-    if (isOverTrash && selectedFiles.size > 0) {
-      // Reset position
-      xOffset = 0;
-      yOffset = 0;
-      setTranslate(0, 0, dragElement);
-      
-      // Trigger delete
-      bulkDeleteFiles();
+if (isOverTrash && selectedFiles.size > 0) {
+  xOffset = 0;
+  yOffset = 0;
+  setTranslate(0, 0, dragElement);
+
+  openBulkModal(); // 🔥 open modal instead
+}
+
     }
   }
+
+function openBulkModal() {
+  if (selectedFiles.size === 0) return;
+
+  document.getElementById('bulkCount').textContent = selectedFiles.size;
+  document.getElementById('bulkActionModal').classList.add('active');
 }
+
+function closeBulkModal() {
+  document.getElementById('bulkActionModal').classList.remove('active');
+}
+
 
 function setTranslate(xPos, yPos, el) {
   el.style.transform = `translate(${xPos}px, ${yPos}px)`;
 }
-// After fetching docs:
-let docs = res.documents.filter(doc => !doc.isTrashed); // ← ADD THIS LINE
-allDocuments = docs;
+function toggleSelectAll() {
+  const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+  selectedFiles.clear();
+
+  if (selectAllCheckbox.checked) {
+    allDocuments.forEach(doc => {
+      selectedFiles.add(doc.$id);
+    });
+  }
+
+  updateSelectionUI();
+}
+document.getElementById('bulkActionModal').addEventListener('click', e => {
+  if (e.target.id === 'bulkActionModal') closeBulkModal();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeBulkModal();
+});
+
+let isBulkAction = false;
+
 
 </script>
 

@@ -823,6 +823,158 @@
     .recent-item:nth-child(4), .favorite-item:nth-child(4) { 
       animation-delay: 0.2s; 
     }
+    /* ===== MODAL ===== */
+          .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .modal.active {
+            display: flex;
+          }
+
+          .modal-content {
+            background: white;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            animation: modalPop 0.25s ease;
+          }
+
+          @keyframes modalPop {
+            from {
+              transform: scale(0.9);
+              opacity: 0;
+            }
+            to {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+
+          .modal-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: 14px 14px 0 0;
+          }
+
+          .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .modal-body {
+            padding: 20px;
+          }
+
+          .modal-footer {
+            padding: 16px 20px;
+            background: var(--secondary-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            border-radius: 0 0 14px 14px;
+          }
+          /* ===== DELETE DIALOG (MATCH IMAGE) ===== */
+.delete-dialog {
+  overflow: hidden;
+}
+
+/* Header */
+.delete-header {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  padding: 16px 20px;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Body */
+.delete-body {
+  padding: 26px 20px;
+  text-align: center;
+  color: #475569;
+  font-size: 14px;
+}
+
+.delete-body strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 15px;
+  color: #1e293b;
+  word-break: break-word;
+}
+
+/* Actions */
+.delete-actions {
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+/* Buttons */
+.delete-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Cancel */
+.delete-btn.cancel {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.delete-btn.cancel:hover {
+  background: #e2e8f0;
+}
+
+/* Move to Trash */
+.delete-btn.trash {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.delete-btn.trash:hover {
+  background: #ffedd5;
+}
+
+/* Delete Permanently */
+.delete-btn.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.delete-btn.danger:hover {
+  background: #b91c1c;
+}
+
+
   </style>
 </head>
 <body>
@@ -957,33 +1109,79 @@
       </div>
       
       <div class="right-sidebar">
+
+        <!-- FAVORITES SECTION (FIXED) -->
         <div class="favorites-section">
           <div class="section-title">
             <i class="fas fa-star"></i> Favorites
           </div>
-          <div class="favorites-section">
-            <div class="section-title">
-              <i class="fas fa-star"></i> Favorites
-            </div>
-            <div id="favoritesList">
-              <div class="empty">
-                <div class="empty-icon">⭐</div>
-                <p>Loading favorites...</p>
-              </div>
-            </div>
+
+          <div id="favoritesList">
+            <div class="empty">
+              <div class="empty-icon">⭐</div>
+              <p>Loading favorites...</p>
             </div>
           </div>
         </div>
-        
+
+        <!-- DELETE CHOICE MODAL -->
+
+               <div id="deleteChoiceModal" class="modal">
+  <div class="modal-content delete-dialog">
+
+    <!-- Header -->
+    <div class="delete-header">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Delete File</span>
+    </div>
+
+    <!-- Body -->
+    <div class="delete-body">
+      <p>What do you want to do with</p>
+      <strong id="deleteFileName"></strong>?
+    </div>
+
+    <!-- Footer -->
+    <div class="delete-actions">
+      <button class="delete-btn cancel" onclick="closeDeleteModal()">
+        Cancel
+      </button>
+
+      <button class="delete-btn trash" onclick="moveToTrashConfirmed()">
+        <i class="fas fa-trash"></i>
+        Move to Trash
+      </button>
+
+      <button class="delete-btn danger" onclick="deletePermanentlyConfirmed()">
+        <i class="fas fa-times"></i>
+        Delete Permanently
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+        <!-- BACKUP SECTION -->
         <div class="backup-section">
           <div class="backup-header">
-            <div class="backup-icon"><i class="fas fa-hdd"></i></div>
+            <div class="backup-icon">
+              <i class="fas fa-hdd"></i>
+            </div>
             <div class="backup-title">Auto Backup</div>
           </div>
-          <div class="backup-status" id="backupStatus">Last backup: Never</div>
-          <button class="backup-btn" onclick="performBackup()">🔄 Backup Now</button>
+
+          <div class="backup-status" id="backupStatus">
+            Last backup: Never
+          </div>
+
+          <button class="backup-btn" onclick="performBackup()">
+            🔄 Backup Now
+          </button>
         </div>
+
       </div>
+
     </div>
   </div>
 </div>
@@ -1006,6 +1204,11 @@ let userId = null;
 let selectedFilesArray = [];
 let isUploading = false;
 
+let deleteDocId = null;
+let deleteFileId = null;
+let deleteFileName = '';
+
+
 // ========== AUTH & INIT ==========
 async function init() {
   try {
@@ -1023,9 +1226,9 @@ async function init() {
     ]);
     
     // Set up auto-refresh for favorites every 3 seconds
-    setInterval(async () => {
-      await loadFavorites();
-    }, 3000);
+    // setInterval(async () => {
+    //   await loadFavorites();
+    // }, 3000);
     
   } catch (error) {
     console.error("Auth failed:", error);
@@ -1110,19 +1313,7 @@ async function startUpload() {
           isFavorite: false
         }
       );
-      
-      // ALSO SAVE TO LOCALSTORAGE
-      const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-      localDocs.push({
-        id: fileId,
-        name: file.name,
-        size: formatFileSize(file.size),
-        uploadedAt: new Date().toISOString(),
-        isFavorite: false,
-        isDeleted: false
-      });
-      localStorage.setItem("documents", JSON.stringify(localDocs));
-      
+      // Update progress
       successCount++;
       progressBar.style.width = '100%';
       await new Promise(r => setTimeout(r, 300));
@@ -1184,7 +1375,16 @@ async function loadRecentDocuments() {
         </div>
         <div class="recent-actions">
           <button class="recent-btn" onclick="openFile('${doc.fileId}')">Open</button>
-          <button class="recent-btn" onclick="deleteFile('${doc.$id}', '${doc.fileId}', '${escapeHtml(doc.fileName)}')">Delete</button>
+
+          <button class="recent-btn"
+            onclick="toggleFavorite('${doc.$id}', ${doc.isFavorite})"
+            title="Toggle Favorite">
+            <i class="fas fa-star" style="color:${doc.isFavorite ? '#f59e0b' : '#94a3b8'}"></i>
+          </button>
+
+          <button class="recent-btn" onclick="deleteFile('${doc.$id}', '${doc.fileId}', '${escapeHtml(doc.fileName)}')">
+            Delete
+          </button>
         </div>
       </div>
     `).join('');
@@ -1251,6 +1451,29 @@ async function loadFavorites() {
   }
 }
 
+async function toggleFavorite(docId, currentStatus) {
+  try {
+    // Toggle isFavorite in Appwrite
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      docId,
+      {
+        isFavorite: !currentStatus
+      }
+    );
+
+    // Refresh UI
+    await loadRecentDocuments();
+    await loadFavorites();
+
+  } catch (error) {
+    console.error("Favorite toggle failed:", error);
+    alert("Failed to update favorite");
+  }
+}
+
+
 // ========== GET FILE ICON BASED ON EXTENSION ==========
 function getFileIcon(fileName) {
   const ext = fileName.split('.').pop().toLowerCase();
@@ -1309,50 +1532,74 @@ function openFile(fileId) {
 }
 
 // ========== SOFT DELETE TO TRASH ==========
-async function deleteFile(docId, fileId, fileName) {
-  if (!confirm(`Move "${fileName}" to trash?`)) return;
-  
+function deleteFile(docId, fileId, fileName) {
+  deleteDocId = docId;
+  deleteFileId = fileId;
+  deleteFileName = fileName;
+
+  document.getElementById('deleteFileName').textContent = fileName;
+  document.getElementById('deleteChoiceModal').classList.add('active');
+}
+
+//Close modal
+function closeDeleteModal() {
+  document.getElementById('deleteChoiceModal').classList.remove('active');
+  deleteDocId = deleteFileId = deleteFileName = null;
+}
+
+
+// Move to Trash (soft delete)
+        async function moveToTrashConfirmed() {
+          try {
+            await databases.updateDocument(
+              DATABASE_ID,
+              COLLECTION_ID,
+              deleteDocId,
+              {
+                isDeleted: true,
+                deletedAt: new Date().toISOString()
+              }
+            );
+
+            closeDeleteModal();
+            alert(`🗑️ "${deleteFileName}" moved to Trash`);
+            await loadRecentDocuments();
+            await loadFavorites();
+            await updateStorageInfo();
+
+          } catch (error) {
+            console.error(error);
+            alert("Failed to move file to Trash");
+          }
+        }
+
+// Delete Permanently
+
+        async function deletePermanentlyConfirmed() {
   try {
-    // Mark as deleted in Appwrite
-    await databases.updateDocument(DATABASE_ID, COLLECTION_ID, docId, {
-      isDeleted: true,
-      deletedAt: new Date().toISOString()
-    });
-    
-    // Update localStorage - move to trash
-    const localDocs = JSON.parse(localStorage.getItem("documents")) || [];
-    const trashDocs = JSON.parse(localStorage.getItem("trash")) || [];
-    
-    const fileToTrash = localDocs.find(d => d.id === fileId);
-    if (fileToTrash) {
-      fileToTrash.isDeleted = true;
-      fileToTrash.deletedAt = new Date().toISOString();
-      trashDocs.push(fileToTrash);
-      
-      const updatedDocs = localDocs.filter(d => d.id !== fileId);
-      localStorage.setItem("documents", JSON.stringify(updatedDocs));
-      localStorage.setItem("trash", JSON.stringify(trashDocs));
-    }
-    
-    alert("🗑️ File moved to trash");
+    // Remove from Storage
+    await storage.deleteFile(BUCKET_ID, deleteFileId);
+
+    // Remove from Database
+    await databases.deleteDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      deleteDocId
+    );
+
+    closeDeleteModal();
+    alert(`❌ "${deleteFileName}" permanently deleted`);
     await loadRecentDocuments();
     await loadFavorites();
     await updateStorageInfo();
+
   } catch (error) {
-    console.error("Move to trash error:", error);
-    alert("Failed to move file to trash");
+    console.error(error);
+    alert("Failed to delete file permanently");
   }
 }
 
-// ========== LISTEN FOR STORAGE EVENTS (Cross-tab sync) ==========
-window.addEventListener('storage', (e) => {
-  if (e.key === 'favoritesUpdated') {
-    // Reload favorites when updated from documents page
-    loadFavorites();
-    // Clear the flag
-    localStorage.removeItem('favoritesUpdated');
-  }
-});
+
 
 // ========== BACKUP FUNCTIONALITY ==========
 function performBackup() {
@@ -1399,6 +1646,14 @@ document.addEventListener('click', (e) => {
     dropdown.classList.remove('active');
   }
 });
+
+// ========== LISTEN FOR FAVORITES CHANGES FROM OTHER PAGES ==========
+window.addEventListener("storage", (e) => {
+  if (e.key === "favoritesChanged") {
+    loadFavorites();
+  }
+});
+
 
 // ========== START ==========
 document.addEventListener('DOMContentLoaded', init);
