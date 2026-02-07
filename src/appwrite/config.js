@@ -13,5 +13,7 @@ export const storage = new Storage(client);
 export const BUCKET_ID = "6957d9df0019e749a227";
 export const DATABASE_ID = "6956ba3a003ab5b4406a";
 export const COLLECTION_ID = "files";
+export const FOLDER_COLLECTION_ID = "folders";
+export const FILES_COLLECTION_ID = "protected"
 
 export { client };

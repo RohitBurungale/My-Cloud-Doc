@@ -12,7 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Documents from "./pages/Documents";
 import Favorites from "./pages/Favorites";
 import Trash from "./pages/Trash";
-
+import FoldersPage from "./pages/FoldersPage"; // Add this line
 
 import { useAuth } from "./context/AuthContext";
 
@@ -23,7 +23,10 @@ const PrivateRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading...
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          Loading...
+        </div>
       </div>
     );
   }
@@ -38,7 +41,10 @@ const PublicRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading...
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          Loading...
+        </div>
       </div>
     );
   }
@@ -68,6 +74,7 @@ const App = () => {
             </PublicRoute>
           }
         />
+        
         {/* Protected routes */}
         <Route
           path="/dashboard"
@@ -98,6 +105,16 @@ const App = () => {
           element={
             <PrivateRoute>
               <Trash />
+            </PrivateRoute>
+          }
+        />
+        
+        {/* New Folders route */}
+        <Route
+          path="/folders"
+          element={
+            <PrivateRoute>
+              <FoldersPage />
             </PrivateRoute>
           }
         />

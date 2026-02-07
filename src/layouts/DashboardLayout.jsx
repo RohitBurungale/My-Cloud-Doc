@@ -6,9 +6,13 @@ import { useState, useRef, useEffect } from "react";
 const DashboardLayout = ({ children }) => {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [toast, setToast] = useState("");
+
   const dropdownRef = useRef(null);
 
+  /* ---------------- Logout ---------------- */
   const handleLogout = async () => {
     try {
       await account.deleteSession("current");
@@ -23,7 +27,7 @@ const DashboardLayout = ({ children }) => {
     .charAt(0)
     .toUpperCase();
 
-  // Close dropdown when clicking outside
+  /* ---------------- Close dropdown on outside click ---------------- */
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -32,12 +36,13 @@ const DashboardLayout = ({ children }) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Sidebar */}
+      {/* ---------------- Sidebar ---------------- */}
       <aside className="w-64 bg-gradient-to-b from-indigo-900 to-purple-900 hidden md:flex flex-col shadow-xl">
         <div className="px-6 py-6 text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300">
           My Cloud Doc
@@ -46,6 +51,7 @@ const DashboardLayout = ({ children }) => {
         <nav className="flex-1 px-3 space-y-1 mt-2">
           <NavItem to="/dashboard">📊 Dashboard</NavItem>
           <NavItem to="/documents">📄 Documents</NavItem>
+          <NavItem to="/folders">🔐 Protected Folders</NavItem>
           <NavItem to="/favorites">⭐ Favorites</NavItem>
           <NavItem to="/trash">🗑 Trash</NavItem>
 
@@ -64,10 +70,10 @@ const DashboardLayout = ({ children }) => {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* ---------------- Main Content ---------------- */}
       <div className="flex-1 flex flex-col">
+        {/* Header */}
         <header className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-6 py-4 flex items-center justify-between shadow-sm">
-          {/* Left: Welcome text */}
           <h1 className="text-lg font-semibold text-gray-800">
             Welcome,{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 font-bold">
@@ -76,66 +82,57 @@ const DashboardLayout = ({ children }) => {
             👋
           </h1>
 
-          {/* Right: Avatar with Dropdown */}
+          {/* Avatar Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold hover:bg-indigo-700 transition-all cursor-pointer"
+              className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold hover:bg-indigo-700 transition-all"
             >
               {avatarLetter}
             </button>
 
-            {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50">
-                {/* User Info Section */}
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
                 <div className="px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
                   <p className="text-sm font-semibold text-gray-800">
                     {user?.email || "user@example.com"}
                   </p>
                 </div>
 
-                {/* Menu Items */}
                 <div className="py-2">
                   <Link
                     to="/account"
-                    className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50"
                     onClick={() => setIsDropdownOpen(false)}
                   >
-                    <span className="text-lg">👤</span>
-                    <span className="text-sm font-medium">Account</span>
+                    👤 Account
                   </Link>
 
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50"
                   >
-                    <span className="text-lg">🚪</span>
-                    <span className="text-sm font-medium">Sign out</span>
+                    🚪 Sign out
                   </button>
-                </div>
-
-                {/* Theme Section */}
-                <div className="border-t border-gray-200 px-4 py-3 bg-gray-50">
-                  <p className="text-xs font-semibold text-gray-600 mb-2">Theme</p>
-                  <div className="flex gap-2">
-                    <button className="flex-1 p-2 rounded-lg bg-white border border-gray-200 hover:border-indigo-400 transition-colors">
-                      <span className="text-lg">☀️</span>
-                    </button>
-                    <button className="flex-1 p-2 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-400 transition-colors">
-                      <span className="text-lg">🌙</span>
-                    </button>
-                    <button className="flex-1 p-2 rounded-lg bg-white border border-gray-200 hover:border-indigo-400 transition-colors">
-                      <span className="text-lg">🌓</span>
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
           </div>
         </header>
 
-        <main className="flex-1 p-6">{children}</main>
+        {/* ---------------- Toast Popup ---------------- */}
+        {toast && (
+          <div className="fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+            {toast}
+          </div>
+        )}
+
+        {/* ---------------- Page Content ---------------- */}
+        <main className="flex-1 p-6">
+          {typeof children === "function"
+            ? children({ setToast })
+            : children}
+        </main>
       </div>
     </div>
   );
@@ -144,7 +141,6 @@ const DashboardLayout = ({ children }) => {
 export default DashboardLayout;
 
 /* ---------------- Nav Item ---------------- */
-
 const NavItem = ({ to, children }) => {
   return (
     <Link
