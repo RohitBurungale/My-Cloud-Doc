@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { encryptFile, decryptFile } from "../utils/crypto";
 import {
@@ -8,7 +8,7 @@ import {
   DATABASE_ID,
   COLLECTION_ID,
 } from "../appwrite/config";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuthHook";
 import { ID, Query, Permission, Role } from "appwrite";
 import {
   File,
@@ -36,7 +36,6 @@ const Dashboard = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -50,7 +49,7 @@ const Dashboard = () => {
   };
 
   /* ---------------- Fetch Active Documents ---------------- */
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     if (!user) return;
 
     const res = await databases.listDocuments(
@@ -63,10 +62,10 @@ const Dashboard = () => {
     );
 
     setDocuments(res.documents);
-  };
+  }, [user]);
 
   /* ---------------- Fetch Trash Count ---------------- */
-  const fetchTrashCount = async () => {
+  const fetchTrashCount = useCallback(async () => {
     if (!user) return;
 
     const res = await databases.listDocuments(
@@ -79,22 +78,18 @@ const Dashboard = () => {
     );
 
     setTrashCount(res.total);
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
       fetchDocuments();
       fetchTrashCount();
     }
-  }, [user]);
+  }, [user, fetchDocuments, fetchTrashCount]);
 
   /* ---------------- Handle File Selection ---------------- */
   const handleFileSelect = (e) => {
     setSelectedFiles(Array.from(e.target.files));
-  };
-
-  const handleUploadClick = () => {
-    document.getElementById("fileInput").click();
   };
 
   /* ---------------- ENCRYPT BEFORE UPLOAD ---------------- */
@@ -246,8 +241,7 @@ const Dashboard = () => {
     const scrollLeft = container.scrollLeft;
     const scrollWidth = container.scrollWidth;
     const clientWidth = container.clientWidth;
-    
-    setScrollPosition(scrollLeft);
+
     setShowLeftScroll(scrollLeft > 0);
     setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 10);
   };

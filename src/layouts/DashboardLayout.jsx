@@ -1,16 +1,16 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { account } from "../appwrite/config";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuthHook";
 import { useState, useRef, useEffect } from "react";
 import { Menu, X, Home, FileText, Folder, Star, Trash2, User, Shield, LogOut } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [toast, setToast] = useState("");
 
   const dropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);
@@ -48,8 +48,9 @@ const DashboardLayout = ({ children }) => {
 
   // Close mobile menu when route changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+  }, [location]);
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-blue-50">
@@ -115,9 +116,6 @@ const DashboardLayout = ({ children }) => {
           <MobileNavItem to="/trash" icon={<Trash2 className="w-4 h-4" />}>
             Trash
           </MobileNavItem>
-          <MobileNavItem to="/profile" icon={<User className="w-4 h-4" />}>
-            Profile
-          </MobileNavItem>
 
           <div className="pt-4 mt-4 border-t border-purple-800/50">
             <MobileNavItem to="/privacy" icon={<Shield className="w-4 h-4" />}>
@@ -153,7 +151,7 @@ const DashboardLayout = ({ children }) => {
           <NavItem to="/folders">🔐 Protected Folders</NavItem>
           <NavItem to="/favorites">⭐ Favorites</NavItem>
           <NavItem to="/trash">🗑 Trash</NavItem>
-          <NavItem to="/profile">👤 Profile</NavItem>
+          
 
           <div className="pt-6 mt-4 border-t border-purple-800/50">
             <NavItem to="/privacy">🔒 Privacy Policy</NavItem>
@@ -241,13 +239,6 @@ const DashboardLayout = ({ children }) => {
             )}
           </div>
         </header>
-
-        {/* ---------------- Toast Popup ---------------- */}
-        {toast && (
-          <div className="fixed top-16 sm:top-5 right-3 sm:right-5 left-3 sm:left-auto bg-green-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg shadow-lg z-50 animate-fade-in text-sm sm:text-base">
-            {toast}
-          </div>
-        )}
 
         {/* ---------------- Page Content ---------------- */}
         <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">

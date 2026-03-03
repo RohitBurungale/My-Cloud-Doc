@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { storage, BUCKET_ID, databases, DATABASE_ID, FILES_COLLECTION_ID } from "../appwrite/config";
 import { ID, Query, Permission, Role } from "appwrite";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuthHook";
 
 const FolderView = ({ folder, onBack }) => {
   const { user } = useAuth();
@@ -13,21 +13,8 @@ const FolderView = ({ folder, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
-  useEffect(() => {
-    if (unlocked) {
-      loadFiles();
-    }
-  }, [unlocked, folder.$id]);
-
-  // Toast notification function
-  const showToast = (message, type = "success") => {
-    setToast({ show: true, message, type });
-    setTimeout(() => {
-      setToast({ show: false, message: "", type: "" });
-    }, 3000);
-  };
-
-  const loadFiles = async () => {
+  // Load files from database
+  const loadFiles = useCallback(async () => {
     setLoading(true);
     try {
       const response = await databases.listDocuments(
@@ -41,6 +28,20 @@ const FolderView = ({ folder, onBack }) => {
     } finally {
       setLoading(false);
     }
+  }, [folder.$id]);
+
+  useEffect(() => {
+    if (unlocked) {
+      loadFiles();
+    }
+  }, [unlocked, folder.$id, loadFiles]);
+
+  // Toast notification function
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: "", type: "" });
+    }, 3000);
   };
 
   const formatFileSize = (bytes) => {

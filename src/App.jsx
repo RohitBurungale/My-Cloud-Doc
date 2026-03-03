@@ -1,3 +1,4 @@
+// App.jsx
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,9 +14,10 @@ import Documents from "./pages/Documents";
 import Favorites from "./pages/Favorites";
 import Trash from "./pages/Trash";
 import FoldersPage from "./pages/FoldersPage"; 
-import Profile from "./pages/Profile"; // ✅ Profile imported
+import Profile from "./pages/Profile";
 
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/useAuthHook";
+import { useTheme } from "./context/useThemeHook";
 
 /* ---------- Protected Route ---------- */
 const PrivateRoute = ({ children }) => {
@@ -53,9 +55,12 @@ const PublicRoute = ({ children }) => {
   return user ? <Navigate to="/dashboard" replace /> : children;
 };
 
-const App = () => {
+// Create a separate component that uses hooks
+const AppContent = () => {
+  const { isDarkMode } = useTheme();
+
   return (
-    <Router>
+    <div className={isDarkMode ? 'dark' : ''}>
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
@@ -110,7 +115,6 @@ const App = () => {
           }
         />
         
-        {/* Folders route */}
         <Route
           path="/folders"
           element={
@@ -120,7 +124,6 @@ const App = () => {
           }
         />
         
-        {/* ✅ PROFILE ROUTE - ADD THIS */}
         <Route
           path="/profile"
           element={
@@ -130,9 +133,16 @@ const App = () => {
           }
         />
         
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </div>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 };

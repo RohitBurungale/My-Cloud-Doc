@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuthHook";
 import { account } from "../appwrite/config";
 import {
   Mail,
@@ -103,7 +103,7 @@ const Profile = () => {
         month: "long",
         day: "numeric"
       });
-    } catch (err) {
+    } catch {
       return "N/A";
     }
   };
@@ -173,7 +173,7 @@ const Profile = () => {
         setPasswordError("");
         setPasswordSuccess("");
       }, 1500);
-    } catch (error) {
+    } catch {
       setPasswordError("Failed to change password");
     } finally {
       setIsChangingPassword(false);
@@ -195,7 +195,7 @@ const Profile = () => {
     try {
       const sessionsList = await account.listSessions();
       setSessions(Array.isArray(sessionsList?.sessions) ? sessionsList.sessions : []);
-    } catch (error) {
+    } catch {
       setSessionsError("Failed to load sessions");
       showToast("Failed to load sessions", "error");
     } finally {
@@ -208,7 +208,7 @@ const Profile = () => {
       await account.deleteSession(sessionId);
       showToast("Session terminated", "success");
       fetchSessions();
-    } catch (error) {
+    } catch {
       showToast("Failed to terminate session", "error");
     }
   };
@@ -226,7 +226,7 @@ const Profile = () => {
       setUser(null);
       showToast("Account deleted", "success");
       setTimeout(() => navigate("/"), 1500);
-    } catch (error) {
+    } catch {
       showToast("Failed to delete account", "error");
       setIsDeleting(false);
     }
