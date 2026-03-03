@@ -54,6 +54,7 @@ const DashboardLayout = ({ children }) => {
           <NavItem to="/folders">🔐 Protected Folders</NavItem>
           <NavItem to="/favorites">⭐ Favorites</NavItem>
           <NavItem to="/trash">🗑 Trash</NavItem>
+          <NavItem to="/profile">👤 Profile</NavItem>
 
           <div className="pt-6 mt-4 border-t border-purple-800/50">
             <NavItem to="/privacy">🔒 Privacy Policy</NavItem>
@@ -86,33 +87,45 @@ const DashboardLayout = ({ children }) => {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold hover:bg-indigo-700 transition-all"
+              className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md"
             >
               {avatarLetter}
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+                {/* User Info */}
                 <div className="px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
-                  <p className="text-sm font-semibold text-gray-800">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {user?.name || "User"}
+                  </p>
+                  <p className="text-xs text-gray-600 truncate">
                     {user?.email || "user@example.com"}
                   </p>
                 </div>
 
-                <div className="py-2">
+                {/* Menu Items */}
+                <div className="py-1">
+                  {/* Profile Link */}
                   <Link
-                    to="/account"
-                    className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50"
+                    to="/profile"
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors w-full text-left"
                     onClick={() => setIsDropdownOpen(false)}
                   >
-                    👤 Account
+                    <span className="text-base">👤</span>
+                    <span className="font-medium">Profile</span>
                   </Link>
 
+                  {/* Sign Out Button */}
                   <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50"
+                    onClick={() => {
+                      handleLogout();
+                      setIsDropdownOpen(false);
+                    }}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left border-t border-gray-100 mt-1 pt-2"
                   >
-                    🚪 Sign out
+                    <span className="text-base">🚪</span>
+                    <span className="font-medium">Sign out</span>
                   </button>
                 </div>
               </div>
@@ -122,18 +135,33 @@ const DashboardLayout = ({ children }) => {
 
         {/* ---------------- Toast Popup ---------------- */}
         {toast && (
-          <div className="fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          <div className="fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in">
             {toast}
           </div>
         )}
 
         {/* ---------------- Page Content ---------------- */}
-        <main className="flex-1 p-6">
-          {typeof children === "function"
-            ? children({ setToast })
-            : children}
+        <main className="flex-1 p-6 overflow-auto">
+          {children}
         </main>
       </div>
+
+      {/* Animation Styles */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

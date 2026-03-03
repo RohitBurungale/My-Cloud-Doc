@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import {
   storage,
@@ -30,6 +30,29 @@ const Trash = () => {
   const [restoring, setRestoring] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
+
+  // --- Mini scroll indicator state ---
+  const scrollContainerRef = useRef(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef(null);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const maxScroll = scrollHeight - clientHeight;
+    setScrollProgress(maxScroll > 0 ? scrollTop / maxScroll : 0);
+
+    setIsScrolling(true);
+    clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => setIsScrolling(false), 800);
+  }, []);
+
+  useEffect(() => {
+    return () => clearTimeout(scrollTimeoutRef.current);
+  }, []);
+  // ------------------------------------
 
   /* ---------- Fetch Trash ---------- */
   const fetchTrash = async () => {
@@ -352,123 +375,174 @@ const Trash = () => {
                   </div>
                 </div>
                 
-                {/* Scrollable table body with both vertical and horizontal scroll */}
-                <div className="flex-1 overflow-y-auto overflow-x-auto">
-                  <div className="min-w-[900px]">
-                    {filteredDocs.map((doc) => {
-                      const daysAgo = calculateDaysAgo(doc.$updatedAt || doc.$createdAt);
-                      const daysLeft = Math.max(0, 30 - daysAgo);
-                      const isExpiringSoon = daysLeft < 7;
-                      
-                      return (
-                        <div
-                          key={doc.$id}
-                          className={`px-6 py-3 border-b border-gray-100 hover:bg-white transition-colors ${
-                            isExpiringSoon ? 'bg-red-50/30' : ''
-                          }`}
-                        >
-                          <div className="grid grid-cols-12 gap-4 items-center">
-                            {/* Checkbox */}
-                            <div className="col-span-1 flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={selected.includes(doc.$id)}
-                                onChange={() => toggleSelect(doc.$id)}
-                                className="w-4 h-4 text-blue-600 border-gray-300 rounded 
-                                  focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors"
-                              />
-                            </div>
-                            
-                            {/* File name with icon */}
-                            <div className="col-span-4 flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getFileColor(doc.fileName)}`}>
-                                <span className="text-sm">{getFileIcon(doc.fileName)}</span>
+                {/* Scrollable table body — mini scroll indicator wrapper */}
+                <div className="flex-1 overflow-hidden relative">
+
+                  {/* ── Mini vertical scroll indicator ── */}
+                  <div
+                    className="absolute right-1.5 top-2 bottom-2 w-1 rounded-full z-20 pointer-events-none"
+                    style={{ background: 'rgba(203,213,224,0.35)' }}
+                  >
+                    <div
+                      className="w-full rounded-full"
+                      style={{
+                        height: '28%',
+                        transform: `translateY(${scrollProgress * 257}%)`,
+                        background: isScrolling
+                          ? 'linear-gradient(180deg, #818cf8, #6366f1)'
+                          : 'rgba(148,163,184,0.55)',
+                        opacity: isScrolling ? 1 : 0.5,
+                        boxShadow: isScrolling
+                          ? '0 0 6px 1px rgba(99,102,241,0.45)'
+                          : 'none',
+                        transition:
+                          'background 0.35s ease, opacity 0.4s ease, box-shadow 0.35s ease, transform 0.08s linear',
+                      }}
+                    />
+                  </div>
+
+                  {/* Top edge fade */}
+                  <div
+                    className="absolute top-0 left-0 right-0 h-7 z-10 pointer-events-none"
+                    style={{
+                      background:
+                        'linear-gradient(to bottom, rgba(249,250,251,0.92) 0%, transparent 100%)',
+                      opacity: scrollProgress > 0.02 ? 1 : 0,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                  />
+                  {/* Bottom edge fade */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-7 z-10 pointer-events-none"
+                    style={{
+                      background:
+                        'linear-gradient(to top, rgba(249,250,251,0.92) 0%, transparent 100%)',
+                      opacity: scrollProgress < 0.98 ? 1 : 0,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                  />
+
+                  <div
+                    ref={scrollContainerRef}
+                    onScroll={handleScroll}
+                    className="h-full overflow-y-auto overflow-x-auto"
+                  >
+                    <div className="min-w-[900px]">
+                      {filteredDocs.map((doc) => {
+                        const daysAgo = calculateDaysAgo(doc.$updatedAt || doc.$createdAt);
+                        const daysLeft = Math.max(0, 30 - daysAgo);
+                        const isExpiringSoon = daysLeft < 7;
+                        
+                        return (
+                          <div
+                            key={doc.$id}
+                            className={`px-6 py-3 border-b border-gray-100 hover:bg-white transition-colors ${
+                              isExpiringSoon ? 'bg-red-50/30' : ''
+                            }`}
+                          >
+                            <div className="grid grid-cols-12 gap-4 items-center">
+                              {/* Checkbox */}
+                              <div className="col-span-1 flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={selected.includes(doc.$id)}
+                                  onChange={() => toggleSelect(doc.$id)}
+                                  className="w-4 h-4 text-blue-600 border-gray-300 rounded 
+                                    focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors"
+                                />
                               </div>
-                              <div className="min-w-0">
-                                <h4 className="text-sm font-medium text-gray-900 truncate" title={doc.fileName}>
-                                  {doc.fileName}
-                                </h4>
+                              
+                              {/* File name with icon */}
+                              <div className="col-span-4 flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getFileColor(doc.fileName)}`}>
+                                  <span className="text-sm">{getFileIcon(doc.fileName)}</span>
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="text-sm font-medium text-gray-900 truncate" title={doc.fileName}>
+                                    {doc.fileName}
+                                  </h4>
+                                </div>
                               </div>
-                            </div>
-                            
-                            {/* File size */}
-                            <div className="col-span-2">
-                              <span className="text-sm text-gray-600">{formatFileSize(doc.fileSize)}</span>
-                            </div>
-                            
-                            {/* Deleted time */}
-                            <div className="col-span-2">
-                              <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>{daysAgo}d ago</span>
+                              
+                              {/* File size */}
+                              <div className="col-span-2">
+                                <span className="text-sm text-gray-600">{formatFileSize(doc.fileSize)}</span>
                               </div>
-                            </div>
-                            
-                            {/* Time left with progress */}
-                            <div className="col-span-2">
-                              <div className="space-y-1">
-                                <span className={`text-sm font-medium ${isExpiringSoon ? 'text-red-600' : 'text-amber-600'}`}>
-                                  {daysLeft}d left
-                                </span>
-                                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                  <div 
-                                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                                      isExpiringSoon ? 'bg-red-500' : 'bg-amber-500'
-                                    }`}
-                                    style={{ width: `${Math.min(100, (daysLeft / 30) * 100)}%` }}
-                                  />
+                              
+                              {/* Deleted time */}
+                              <div className="col-span-2">
+                                <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>{daysAgo}d ago</span>
+                                </div>
+                              </div>
+                              
+                              {/* Time left with progress */}
+                              <div className="col-span-2">
+                                <div className="space-y-1">
+                                  <span className={`text-sm font-medium ${isExpiringSoon ? 'text-red-600' : 'text-amber-600'}`}>
+                                    {daysLeft}d left
+                                  </span>
+                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div 
+                                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                                        isExpiringSoon ? 'bg-red-500' : 'bg-amber-500'
+                                      }`}
+                                      style={{ width: `${Math.min(100, (daysLeft / 30) * 100)}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Actions */}
+                              <div className="col-span-1">
+                                <div className="relative flex justify-end">
+                                  <button
+                                    onClick={() => setActiveMenu(activeMenu === doc.$id ? null : doc.$id)}
+                                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                  >
+                                    <MoreVertical className="w-4 h-4" />
+                                  </button>
+                                  
+                                  {activeMenu === doc.$id && (
+                                    <>
+                                      <div 
+                                        className="fixed inset-0 z-40"
+                                        onClick={() => setActiveMenu(null)}
+                                      />
+                                      <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-gray-200 shadow-lg z-50 py-1">
+                                        <button
+                                          onClick={() => {
+                                            setSelected([doc.$id]);
+                                            setTimeout(restoreSelected, 0);
+                                            setActiveMenu(null);
+                                          }}
+                                          className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                        >
+                                          <RotateCcw className="w-3.5 h-3.5" />
+                                          Restore
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            setSelected([doc.$id]);
+                                            setShowDeleteConfirm(true);
+                                            setActiveMenu(null);
+                                          }}
+                                          className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                          Delete Permanently
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             </div>
-                            
-                            {/* Actions */}
-                            <div className="col-span-1">
-                              <div className="relative flex justify-end">
-                                <button
-                                  onClick={() => setActiveMenu(activeMenu === doc.$id ? null : doc.$id)}
-                                  className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                                >
-                                  <MoreVertical className="w-4 h-4" />
-                                </button>
-                                
-                                {activeMenu === doc.$id && (
-                                  <>
-                                    <div 
-                                      className="fixed inset-0 z-40"
-                                      onClick={() => setActiveMenu(null)}
-                                    />
-                                    <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-gray-200 shadow-lg z-50 py-1">
-                                      <button
-                                        onClick={() => {
-                                          setSelected([doc.$id]);
-                                          setTimeout(restoreSelected, 0);
-                                          setActiveMenu(null);
-                                        }}
-                                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                      >
-                                        <RotateCcw className="w-3.5 h-3.5" />
-                                        Restore
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          setSelected([doc.$id]);
-                                          setShowDeleteConfirm(true);
-                                          setActiveMenu(null);
-                                        }}
-                                        className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                      >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                        Delete Permanently
-                                      </button>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>

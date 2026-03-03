@@ -12,7 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import Documents from "./pages/Documents";
 import Favorites from "./pages/Favorites";
 import Trash from "./pages/Trash";
-import FoldersPage from "./pages/FoldersPage"; // Add this line
+import FoldersPage from "./pages/FoldersPage"; 
+import Profile from "./pages/Profile"; // ✅ Profile imported
 
 import { useAuth } from "./context/AuthContext";
 
@@ -109,12 +110,22 @@ const App = () => {
           }
         />
         
-        {/* New Folders route */}
+        {/* Folders route */}
         <Route
           path="/folders"
           element={
             <PrivateRoute>
               <FoldersPage />
+            </PrivateRoute>
+          }
+        />
+        
+        {/* ✅ PROFILE ROUTE - ADD THIS */}
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
             </PrivateRoute>
           }
         />
