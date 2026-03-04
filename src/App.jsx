@@ -15,6 +15,7 @@ import Favorites from "./pages/Favorites";
 import Trash from "./pages/Trash";
 import FoldersPage from "./pages/FoldersPage"; 
 import Profile from "./pages/Profile";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 import { useAuth } from "./context/useAuthHook";
 import { useTheme } from "./context/useThemeHook";
@@ -132,6 +133,7 @@ const AppContent = () => {
             </PrivateRoute>
           }
         />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

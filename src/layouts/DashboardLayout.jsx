@@ -148,8 +148,10 @@ const DashboardLayout = ({ children }) => {
           <NavItem to="/favorites">⭐ Favorites</NavItem>
           <NavItem to="/trash">🗑 Trash</NavItem>
 
-          <div className="pt-6 mt-4 border-t border-purple-800/50">
-            <NavItem to="/privacy">🔒 Privacy Policy</NavItem>
+         <div className="pt-4 mt-4 border-t border-purple-800/50">
+            <MobileNavItem to="/privacy" icon={<Shield className="w-4 h-4" />}>
+              Privacy Policy
+            </MobileNavItem>
           </div>
         </nav>
 
