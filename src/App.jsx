@@ -17,8 +17,7 @@ import FoldersPage from "./pages/FoldersPage";
 import Profile from "./pages/Profile";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
-import { useAuth } from "./context/useAuthHook";
-import { useTheme } from "./context/useThemeHook";
+import { useAuth } from "./context/AuthContext";
 
 /* ---------- Protected Route ---------- */
 const PrivateRoute = ({ children }) => {
@@ -26,9 +25,9 @@ const PrivateRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
           Loading...
         </div>
       </div>
@@ -44,9 +43,9 @@ const PublicRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
           Loading...
         </div>
       </div>
@@ -56,12 +55,9 @@ const PublicRoute = ({ children }) => {
   return user ? <Navigate to="/dashboard" replace /> : children;
 };
 
-// Create a separate component that uses hooks
-const AppContent = () => {
-  const { isDarkMode } = useTheme();
-
+const App = () => {
   return (
-    <div className={isDarkMode ? 'dark' : ''}>
+    <Router>
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
@@ -81,6 +77,7 @@ const AppContent = () => {
             </PublicRoute>
           }
         />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         
         {/* Protected routes */}
         <Route
@@ -115,7 +112,6 @@ const AppContent = () => {
             </PrivateRoute>
           }
         />
-        
         <Route
           path="/folders"
           element={
@@ -124,7 +120,6 @@ const AppContent = () => {
             </PrivateRoute>
           }
         />
-        
         <Route
           path="/profile"
           element={
@@ -133,18 +128,10 @@ const AppContent = () => {
             </PrivateRoute>
           }
         />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
         
+        {/* Catch all - 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </div>
-  );
-};
-
-const App = () => {
-  return (
-    <Router>
-      <AppContent />
     </Router>
   );
 };
