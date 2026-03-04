@@ -260,7 +260,7 @@ const Home = () => {
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
           <p className="text-indigo-100 text-xs sm:text-sm mt-3 sm:mt-4">
-            No credit card required • 50GB free storage • Cancel anytime
+            No credit card required • 5GB free storage • Cancel anytime
           </p>
         </div>
       </section>
