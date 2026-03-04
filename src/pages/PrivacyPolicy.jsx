@@ -23,7 +23,9 @@ import {
   Cloud,
   Github,
   Twitter,
-  Linkedin
+  Linkedin,
+  Code,
+  Heart
 } from "lucide-react";
 
 const PrivacyPolicy = () => {
@@ -360,13 +362,49 @@ const PrivacyPolicy = () => {
             </section>
           </div>
 
-          {/* Footer Note */}
-          <div className="mt-12 text-center text-sm text-slate-500 border-t border-white/10 pt-8">
-            <p>© {new Date().getFullYear()} Secure Cloud Doc. All rights reserved.</p>
-            <div className="flex justify-center gap-4 mt-4">
-              <Link to="/terms" className="hover:text-cyan-400 transition-colors">Terms of Service</Link>
-              <Link to="/privacy" className="text-cyan-400">Privacy Policy</Link>
-              <Link to="/cookies" className="hover:text-cyan-400 transition-colors">Cookie Policy</Link>
+          {/* Footer Note with Credits */}
+          <div className="mt-12 text-center border-t border-white/10 pt-8">
+            <p className="text-sm text-slate-500">
+              © {new Date().getFullYear()} Secure Cloud Doc. All rights reserved.
+            </p>
+            
+            {/* Author Credits - Added Here */}
+            <div className="mt-6 flex flex-col items-center justify-center gap-2">
+              <div className="flex items-center gap-2 text-slate-400">
+                <Code className="w-4 h-4" />
+                <span className="text-sm">Created with</span>
+                <Heart className="w-4 h-4 text-red-400 animate-pulse" />
+                <span className="text-sm">by</span>
+              </div>
+              
+              <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
+                <span className="bg-white/5 px-4 py-2 rounded-full border border-white/10 text-cyan-400 font-medium">
+                  Rohit Burungale
+                </span>
+                <span className="text-slate-600">&</span>
+                <span className="bg-white/5 px-4 py-2 rounded-full border border-white/10 text-cyan-400 font-medium">
+                  Sammed Changule
+                </span>
+              </div>
+              
+              <p className="text-xs text-slate-600 mt-2">
+                Building secure cloud solutions with ❤️
+              </p>
+            </div>
+            
+            {/* Policy Links */}
+            <div className="flex flex-wrap justify-center gap-4 mt-6 text-xs sm:text-sm">
+              <Link to="/terms" className="text-slate-500 hover:text-cyan-400 transition-colors">
+                Terms of Service
+              </Link>
+              <span className="text-slate-700">•</span>
+              <Link to="/privacy" className="text-cyan-400">
+                Privacy Policy
+              </Link>
+              <span className="text-slate-700">•</span>
+              <Link to="/cookies" className="text-slate-500 hover:text-cyan-400 transition-colors">
+                Cookie Policy
+              </Link>
             </div>
           </div>
         </div>

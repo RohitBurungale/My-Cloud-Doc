@@ -91,7 +91,7 @@ const Home = () => {
               </div>
               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                 <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                <span>5GB free storage</span>
+                <span>50 GB free storage</span>
               </div>
             </div>
 
