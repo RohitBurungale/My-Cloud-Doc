@@ -50,26 +50,26 @@ const Register = () => {
       <Navbar />
 
       <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-indigo-50 via-white to-purple-50 
-        flex items-center justify-center px-4 py-8">
+        flex items-center justify-center px-4 py-6 sm:py-8">
         
         {/* Success Popup */}
         {success && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 px-4">
-            <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border border-gray-100">
-              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-10 h-10 text-green-600" />
+            <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border border-gray-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 Account Created!
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
                 Your account was created successfully.
               </p>
               <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full
                   animate-progress" />
               </div>
-              <p className="text-sm text-gray-500 mt-4 flex items-center justify-center gap-2">
+              <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 flex items-center justify-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
                 Redirecting to login...
               </p>
@@ -78,7 +78,7 @@ const Register = () => {
         )}
 
         <div className="w-full max-w-5xl">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
             
             {/* Left Panel - Branding & Info */}
             <div className="hidden lg:block">
@@ -133,19 +133,19 @@ const Register = () => {
 
             {/* Right Panel - Registration Form */}
             <div className="w-full max-w-md mx-auto lg:mx-0">
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
                 
                 {/* Mobile Logo */}
-                <div className="lg:hidden text-center mb-8">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-full mb-4">
+                <div className="lg:hidden text-center mb-6 sm:mb-8">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-full mb-3 sm:mb-4">
                     <Cloud className="w-5 h-5 text-indigo-600" />
                     <span className="font-semibold text-indigo-900">CloudDoc</span>
                   </div>
                 </div>
 
                 {/* Form Header */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <div className="mb-6 sm:mb-8">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                     Create Account
                   </h2>
                   <p className="text-gray-600 text-sm">
@@ -155,7 +155,7 @@ const Register = () => {
 
                 {/* Error Message */}
                 {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
                     <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <AlertCircle className="w-3.5 h-3.5 text-red-600" />
                     </div>
@@ -164,10 +164,10 @@ const Register = () => {
                 )}
 
                 {/* Registration Form */}
-                <form onSubmit={handleRegister} className="space-y-5">
+                <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
                   {/* Name Field */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Full Name
                     </label>
                     <div className="relative">
@@ -178,16 +178,16 @@ const Register = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
-                        className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg
+                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg
                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                          transition-all duration-200"
+                          transition-all duration-200 text-base"
                       />
                     </div>
                   </div>
 
                   {/* Email Field */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Email Address
                     </label>
                     <div className="relative">
@@ -198,16 +198,16 @@ const Register = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg
+                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg
                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                          transition-all duration-200"
+                          transition-all duration-200 text-base"
                       />
                     </div>
                   </div>
 
                   {/* Password Field */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Password
                     </label>
                     <div className="relative">
@@ -218,12 +218,12 @@ const Register = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg
+                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg
                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                          transition-all duration-200"
+                          transition-all duration-200 text-base"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-2 flex items-start gap-1.5">
+                    <p className="text-xs text-gray-500 mt-1.5 sm:mt-2 flex items-start gap-1.5">
                       <span className="text-indigo-600">💡</span>
                       <span>Use 8+ characters with letters, numbers & symbols</span>
                     </p>
@@ -233,7 +233,7 @@ const Register = () => {
                   <button
                     type="submit"
                     disabled={success}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600
+                    className="w-full py-2.5 sm:py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600
                       hover:from-indigo-700 hover:to-purple-700
                       text-white font-semibold rounded-lg shadow-lg shadow-indigo-500/30
                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
@@ -255,7 +255,7 @@ const Register = () => {
                 </form>
 
                 {/* Terms Agreement */}
-                <p className="text-xs text-gray-500 text-center mt-4 leading-relaxed">
+                <p className="text-xs text-gray-500 text-center mt-3 sm:mt-4 leading-relaxed">
                   By creating an account, you agree to our{" "}
                   <button className="text-indigo-600 hover:text-indigo-700 font-medium hover:underline">
                     Terms of Service
@@ -267,7 +267,7 @@ const Register = () => {
                 </p>
 
                 {/* Divider */}
-                <div className="relative my-6">
+                <div className="relative my-4 sm:my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-200" />
                   </div>
@@ -290,7 +290,7 @@ const Register = () => {
                 </div>
 
                 {/* Security Badge */}
-                <div className="mt-6 pt-6 border-t border-gray-100">
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100">
                   <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
                     <div className="flex items-center gap-1.5">
                       <Shield className="w-4 h-4" />

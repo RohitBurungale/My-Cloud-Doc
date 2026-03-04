@@ -84,7 +84,7 @@ const Home = () => {
               </div>
               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                 <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                <span>5GB free storage</span>
+                <span> free storage </span>
               </div>
             </div>
 
@@ -107,7 +107,7 @@ const Home = () => {
                   ))}
                 </div>
                 <p className="text-gray-600 font-medium">
-                  Trusted by 10,000+ users
+                  Trusted by Multiple users
                 </p>
               </div>
             </div>
@@ -165,7 +165,7 @@ const Home = () => {
                 </p>
                 <div className="flex items-center justify-center gap-2 text-indigo-600">
                   <Users className="w-4 h-4" />
-                  <span className="text-xs sm:text-sm font-semibold">Join 10,000+ users</span>
+                  <span className="text-xs sm:text-sm font-semibold">Joining 10,000+ users</span>
                 </div>
               </div>
             </div>
@@ -260,7 +260,7 @@ const Home = () => {
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
           <p className="text-indigo-100 text-xs sm:text-sm mt-3 sm:mt-4">
-            No credit card required • 5GB free storage • Cancel anytime
+            No credit card required • free storage • Cancel anytime
           </p>
         </div>
       </section>
