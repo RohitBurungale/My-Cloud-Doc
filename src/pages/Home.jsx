@@ -48,32 +48,31 @@ const Home = () => {
               Access your files anywhere, anytime with complete peace of mind.
             </p>
 
-            {/* CTA Buttons - Single Row on Mobile */}
-            <div className="flex flex-row gap-3 sm:gap-4 justify-center md:justify-start">
+            {/* CTA Buttons - Stacked on Mobile */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start max-w-md mx-auto md:mx-0">
               <Link
                 to="/register"
-                className="group inline-flex items-center justify-center gap-1.5 sm:gap-2 
-                  px-4 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 
+                className="group inline-flex items-center justify-center gap-2 
+                  px-6 sm:px-8 py-3.5 sm:py-4 
                   bg-gradient-to-r from-indigo-600 to-purple-600
                   hover:from-indigo-700 hover:to-purple-700
-                  text-white font-semibold text-sm sm:text-base rounded-lg 
+                  text-white font-semibold text-base sm:text-lg rounded-xl 
                   shadow-lg shadow-indigo-500/30
                   transition-all duration-200 transform hover:scale-105">
-                <span className="hidden xs:inline">Get Started Free</span>
-                <span className="xs:hidden">Get Started</span>
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                Get Started Free
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
 
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 
-                  px-4 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 
-                  border-2 border-gray-300 rounded-lg
-                  text-gray-700 font-semibold text-sm sm:text-base
+                className="inline-flex items-center justify-center gap-2 
+                  px-6 sm:px-8 py-3.5 sm:py-4 
+                  bg-white border-2 border-gray-300 rounded-xl
+                  text-gray-700 font-semibold text-base sm:text-lg
                   hover:border-indigo-600 hover:text-indigo-600
                   transition-all duration-200">
                 Sign In
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
 
