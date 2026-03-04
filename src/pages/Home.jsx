@@ -26,8 +26,8 @@ const Home = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           
-          {/* Left Content */}
-          <div className="space-y-5 sm:space-y-6 text-center lg:text-left order-2 lg:order-1">
+          {/* Left Content - This comes FIRST on mobile */}
+          <div className="space-y-5 sm:space-y-6 text-center lg:text-left order-1">
             
             {/* Badge */}
             <div className="flex justify-center lg:justify-start">
@@ -119,8 +119,8 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Right Visual */}
-          <div className="relative flex justify-center mt-8 lg:mt-0 order-1 lg:order-2">
+          {/* Right Visual - This comes SECOND on mobile (below content) */}
+          <div className="relative flex justify-center mt-8 lg:mt-0 order-2">
             
             {/* Main Card */}
             <div className="relative bg-gradient-to-br from-indigo-950/90 to-purple-950/90 
