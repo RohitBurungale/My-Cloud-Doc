@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { AuthContext } from "./AuthContext"; // ✅ Fixed import path
+import { AuthContext } from "./contexts";
 
 // Custom hook with error handling
 export const useAuth = () => {
@@ -13,6 +13,7 @@ export const useAuth = () => {
 };
 
 // Higher-order component for protecting routes
+// eslint-disable-next-line no-unused-vars
 export const withAuth = (WrappedComponent) => {
   return function AuthenticatedComponent(props) {
     const { user, loading } = useAuth();
@@ -29,8 +30,7 @@ export const withAuth = (WrappedComponent) => {
     }
 
     if (!user) {
-      // Use React Router for navigation instead of direct window.location
-      // This is just a fallback - better to use useNavigate in the component
+      // You can redirect here or show login prompt
       window.location.href = '/login';
       return null;
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useState, createContext } from "react";
 import { account } from "../appwrite/config";
 
 // Create and export the context
@@ -84,39 +84,11 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook with error handling
+// Custom hook for using auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  
   if (context === null) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-  
   return context;
-};
-
-// Higher-order component for protecting routes
-export const withAuth = (WrappedComponent) => {
-  return function AuthenticatedComponent(props) {
-    const { user, loading } = useAuth();
-
-    if (loading) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Loading...</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (!user) {
-      // You can redirect here or show login prompt
-      window.location.href = '/login';
-      return null;
-    }
-
-    return <WrappedComponent {...props} />;
-  };
 };
