@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { account } from "../appwrite/config";
-import { useAuth } from "../context/AuthContext"; // ✅ Fixed import path
+import { useAuth } from "../context/useAuthHook"; // ✅ Fixed import path
 import Navbar from "../components/Navbar";
 import { 
   LogIn, 
