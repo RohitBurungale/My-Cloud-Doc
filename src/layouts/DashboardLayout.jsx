@@ -29,7 +29,7 @@ import {
   Fingerprint,
   Sparkles,
   Lock,
-  Users
+  Users,
 } from "lucide-react";
 import {
   databases,
@@ -327,16 +327,16 @@ const DashboardLayout = ({ children }) => {
               <div className="absolute -left-1.5 -top-1.5 w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center animate-pulse shadow-sm">
                 <FileText className="w-2.5 h-2.5 text-amber-600" />
               </div>
-              
+
               <div className="w-11 h-11 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200/50 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 <Cloud className="w-5.5 h-5.5 text-white relative z-10" />
               </div>
-              
+
               <div className="absolute -right-1.5 -bottom-1.5 w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center animate-pulse delay-300 shadow-sm">
                 <Lock className="w-2.5 h-2.5 text-orange-600" />
               </div>
-              
+
               <div className="absolute -right-3 top-1/2 w-1.5 h-1.5 bg-amber-300 rounded-full animate-ping opacity-50" />
               <div className="absolute -left-3 bottom-1/2 w-1 h-1 bg-orange-300 rounded-full animate-ping delay-500 opacity-50" />
             </div>
@@ -346,28 +346,34 @@ const DashboardLayout = ({ children }) => {
                 <span className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent tracking-tight">
                   CloudDoc
                 </span>
-                
+
                 <div className="flex items-center gap-1 ml-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse delay-150"></div>
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse delay-300"></div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 mt-1">
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
                   <Shield className="w-3 h-3 text-amber-600" />
-                  <span className="text-[10px] font-medium text-amber-700">Secure</span>
+                  <span className="text-[10px] font-medium text-amber-700">
+                    Secure
+                  </span>
                 </div>
-                
+
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-50 rounded-full border border-orange-200">
                   <Zap className="w-3 h-3 text-orange-600" />
-                  <span className="text-[10px] font-medium text-orange-700">Fast</span>
+                  <span className="text-[10px] font-medium text-orange-700">
+                    Fast
+                  </span>
                 </div>
-                
+
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
                   <Globe className="w-3 h-3 text-amber-600" />
-                  <span className="text-[10px] font-medium text-amber-700">Global</span>
+                  <span className="text-[10px] font-medium text-amber-700">
+                    Global
+                  </span>
                 </div>
               </div>
             </div>
@@ -600,21 +606,7 @@ const DashboardLayout = ({ children }) => {
             ></div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-1.5">
-              <div className="w-6 h-6 bg-amber-100 rounded-lg flex items-center justify-center">
-                <File className="w-3 h-3 text-amber-600" />
-              </div>
-              <span className="text-xs text-amber-600 font-medium">{storageStats.fileCount} files</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Folder className="w-3 h-3 text-orange-600" />
-              </div>
-              <span className="text-xs text-orange-600 font-medium">{storageStats.folderCount} folders</span>
-            </div>
-          </div>
+        
 
           <button
             onClick={handleLogout}
@@ -696,17 +688,6 @@ const DashboardLayout = ({ children }) => {
               </div>
             </div>
 
-            {/* Storage Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 rounded-full border border-amber-200 shadow-sm">
-              <HardDrive className="w-3.5 h-3.5 text-amber-600" />
-              <span className="text-xs font-medium text-amber-700">{usedGB} GB / {totalGB} GB</span>
-            </div>
-
-            {/* Users Badge */}
-            <div className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-orange-50 to-amber-50 rounded-full border border-orange-200 shadow-sm">
-              <Users className="w-3.5 h-3.5 text-orange-600" />
-              <span className="text-xs font-medium text-orange-700">10k+ Users</span>
-            </div>
 
             {/* Notifications */}
             <div className="relative" ref={notificationRef}>
@@ -911,9 +892,7 @@ const MobileNavItem = ({ to, icon, children, active }) => (
         : "text-slate-600 hover:bg-amber-50 hover:text-amber-700"
     }`}
   >
-    <span className={active ? "text-amber-600" : "text-slate-400"}>
-      {icon}
-    </span>
+    <span className={active ? "text-amber-600" : "text-slate-400"}>{icon}</span>
     <span className="font-medium flex-1">{children}</span>
   </Link>
 );
