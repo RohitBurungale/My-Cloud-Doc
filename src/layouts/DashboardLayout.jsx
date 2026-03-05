@@ -24,6 +24,12 @@ import {
   HardDrive,
   AlertCircle,
   CheckCircle,
+  Zap,
+  Globe,
+  Fingerprint,
+  Sparkles,
+  Lock,
+  Users
 } from "lucide-react";
 import {
   databases,
@@ -169,7 +175,7 @@ const DashboardLayout = ({ children }) => {
           newNotifications.push({
             id: `file-${file.$id}-${timestamp}`,
             type: "upload",
-            icon: <File className="w-4 h-4 text-indigo-600" />,
+            icon: <File className="w-4 h-4 text-amber-600" />,
             title: "File Uploaded",
             message: `"${file.fileName || "Unnamed file"}" was added to your documents`,
             time: formatRelativeTime(file.$createdAt),
@@ -207,7 +213,7 @@ const DashboardLayout = ({ children }) => {
             newNotifications.push({
               id: `expire-${item.$id}-${timestamp}`,
               type: "expiring",
-              icon: <AlertCircle className="w-4 h-4 text-rose-600" />,
+              icon: <AlertCircle className="w-4 h-4 text-amber-600" />,
               title: "File Expiring Soon",
               message: `"${item.fileName || "Unnamed file"}" will be permanently deleted in ${daysLeft} days`,
               time: `${daysLeft} days left`,
@@ -298,11 +304,11 @@ const DashboardLayout = ({ children }) => {
   const totalGB = (storageStats.total / (1024 * 1024 * 1024)).toFixed(0);
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+    <div className="min-h-screen flex bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-amber-900/30 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -310,34 +316,76 @@ const DashboardLayout = ({ children }) => {
       {/* Mobile Sidebar */}
       <aside
         ref={mobileMenuRef}
-        className={`fixed md:hidden top-0 left-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-r border-slate-200 ${
+        className={`fixed md:hidden top-0 left-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-r border-amber-200 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Header with Document Icon */}
-        <div className="px-5 py-6 flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-              <FileText className="w-5 h-5 text-white" />
+        <div className="px-5 py-6 flex items-center justify-between border-b border-amber-100 bg-gradient-to-r from-amber-50/90 via-white to-orange-50/90">
+          <div className="flex items-center gap-4">
+            <div className="relative flex items-center">
+              <div className="absolute -left-1.5 -top-1.5 w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center animate-pulse shadow-sm">
+                <FileText className="w-2.5 h-2.5 text-amber-600" />
+              </div>
+              
+              <div className="w-11 h-11 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200/50 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <Cloud className="w-5.5 h-5.5 text-white relative z-10" />
+              </div>
+              
+              <div className="absolute -right-1.5 -bottom-1.5 w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center animate-pulse delay-300 shadow-sm">
+                <Lock className="w-2.5 h-2.5 text-orange-600" />
+              </div>
+              
+              <div className="absolute -right-3 top-1/2 w-1.5 h-1.5 bg-amber-300 rounded-full animate-ping opacity-50" />
+              <div className="absolute -left-3 bottom-1/2 w-1 h-1 bg-orange-300 rounded-full animate-ping delay-500 opacity-50" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-700 bg-clip-text text-transparent">
-              CloudDoc
-            </span>
+
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent tracking-tight">
+                  CloudDoc
+                </span>
+                
+                <div className="flex items-center gap-1 ml-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse delay-150"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse delay-300"></div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
+                  <Shield className="w-3 h-3 text-amber-600" />
+                  <span className="text-[10px] font-medium text-amber-700">Secure</span>
+                </div>
+                
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-50 rounded-full border border-orange-200">
+                  <Zap className="w-3 h-3 text-orange-600" />
+                  <span className="text-[10px] font-medium text-orange-700">Fast</span>
+                </div>
+                
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
+                  <Globe className="w-3 h-3 text-amber-600" />
+                  <span className="text-[10px] font-medium text-amber-700">Global</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* User Info */}
-        <div className="px-5 py-5 bg-gradient-to-br from-slate-50 to-white border-b border-slate-200">
+        <div className="px-5 py-5 bg-gradient-to-br from-amber-50 to-white border-b border-amber-200">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-200">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-amber-200">
                 {avatarLetter}
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
@@ -355,24 +403,24 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Storage Indicator */}
-          <div className="mt-4 pt-4 border-t border-slate-200">
+          <div className="mt-4 pt-4 border-t border-amber-200">
             <div className="flex items-center justify-between text-xs mb-2">
-              <span className="text-slate-600 flex items-center gap-1.5 font-medium">
+              <span className="text-amber-600 flex items-center gap-1.5 font-medium">
                 <HardDrive className="w-3.5 h-3.5" />
                 Storage Usage
               </span>
-              <span className="text-slate-700 font-semibold">
+              <span className="text-amber-700 font-semibold">
                 {usedGB} GB / {totalGB} GB
               </span>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-2 shadow-inner">
+            <div className="w-full bg-amber-100 rounded-full h-2 shadow-inner">
               <div
                 className={`h-2 rounded-full transition-all duration-300 shadow-sm ${
                   usedPercent > 90
-                    ? "bg-gradient-to-r from-rose-500 to-rose-600"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-600"
                     : usedPercent > 70
                       ? "bg-gradient-to-r from-amber-500 to-amber-600"
-                      : "bg-gradient-to-r from-indigo-600 to-indigo-700"
+                      : "bg-gradient-to-r from-amber-600 to-orange-600"
                 }`}
                 style={{ width: `${Math.min(usedPercent, 100)}%` }}
               ></div>
@@ -422,7 +470,7 @@ const DashboardLayout = ({ children }) => {
             Trash
           </MobileNavItem>
 
-          <div className="pt-4 mt-4 border-t border-slate-200">
+          <div className="pt-4 mt-4 border-t border-amber-200">
             <MobileNavItem
               to="/profile"
               icon={<User className="w-4 h-4" />}
@@ -442,13 +490,13 @@ const DashboardLayout = ({ children }) => {
         </nav>
 
         {/* Logout Button */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-red via-red to-transparent border-t border-slate-200">
+        <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-amber-50 via-white to-transparent border-t border-amber-200">
           <button
             onClick={() => {
               handleLogout();
               setIsMobileMenuOpen(false);
             }}
-            className="w-full py-3 rounded-lg border border-red-200 text-red-700 font-semibold hover:border-red-800 transition-all flex items-center justify-center gap-2 shadow-sm"
+            className="w-full py-3 rounded-lg border border-amber-300 text-amber-700 font-semibold hover:bg-amber-50 hover:border-amber-500 transition-all flex items-center justify-center gap-2 shadow-sm"
           >
             <LogOut className="w-4 h-4" />
             Logout
@@ -457,20 +505,27 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-64 bg-white border-r border-slate-200 flex-col shadow-sm">
-        <div className="px-6 py-6 border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white">
+      <aside className="hidden md:flex md:w-64 bg-white border-r border-amber-200 flex-col shadow-sm">
+        <div className="px-6 py-6 border-b border-amber-200 bg-gradient-to-br from-amber-50 to-white">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-              <FileText className="w-5 h-5 text-white" />
+            <div className="relative">
+              <div className="absolute -left-1 -top-1 w-3 h-3 bg-amber-100 rounded-full flex items-center justify-center animate-pulse">
+                <Sparkles className="w-2 h-2 text-amber-500" />
+              </div>
+              <div className="w-9 h-9 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-700 bg-clip-text text-transparent">
-              CloudDoc
-            </span>
+            <div>
+              <span className="text-xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
+                CloudDoc
+              </span>
+              <div className="flex items-center gap-1 mt-0.5">
+                <Shield className="w-3 h-3 text-amber-400" />
+                <span className="text-[10px] text-amber-500">Secure</span>
+              </div>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-2.5 flex items-center gap-1.5 font-medium">
-            <Cloud className="w-3.5 h-3.5" />
-            Secure Document Storage
-          </p>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">
@@ -510,7 +565,7 @@ const DashboardLayout = ({ children }) => {
             Trash
           </NavItem>
 
-          <div className="pt-6 mt-6 border-t border-slate-200">
+          <div className="pt-6 mt-6 border-t border-amber-200">
             <NavItem
               to="/privacy"
               icon={<Shield className="w-4 h-4" />}
@@ -522,32 +577,48 @@ const DashboardLayout = ({ children }) => {
         </nav>
 
         {/* Storage Info */}
-        <div className="p-5 border-t border-slate-200 bg-gradient-to-br from-slate-50 to-white">
+        <div className="p-5 border-t border-amber-200 bg-gradient-to-br from-amber-50 to-white">
           <div className="flex items-center justify-between text-xs mb-2">
-            <span className="text-slate-600 flex items-center gap-1.5 font-medium">
+            <span className="text-amber-600 flex items-center gap-1.5 font-medium">
               <HardDrive className="w-3.5 h-3.5" />
               Storage
             </span>
-            <span className="text-slate-700 font-semibold">
+            <span className="text-amber-700 font-semibold">
               {usedGB} GB / {totalGB} GB
             </span>
           </div>
-          <div className="w-full bg-slate-200 rounded-full h-2 mb-4 shadow-inner">
+          <div className="w-full bg-amber-100 rounded-full h-2 mb-4 shadow-inner">
             <div
               className={`h-2 rounded-full transition-all duration-300 shadow-sm ${
                 usedPercent > 90
-                  ? "bg-gradient-to-r from-rose-500 to-rose-600"
+                  ? "bg-gradient-to-r from-amber-500 to-orange-600"
                   : usedPercent > 70
                     ? "bg-gradient-to-r from-amber-500 to-amber-600"
-                    : "bg-gradient-to-r from-indigo-600 to-indigo-700"
+                    : "bg-gradient-to-r from-amber-600 to-orange-600"
               }`}
               style={{ width: `${Math.min(usedPercent, 100)}%` }}
             ></div>
           </div>
 
+          {/* Quick Stats */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-6 bg-amber-100 rounded-lg flex items-center justify-center">
+                <File className="w-3 h-3 text-amber-600" />
+              </div>
+              <span className="text-xs text-amber-600 font-medium">{storageStats.fileCount} files</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Folder className="w-3 h-3 text-orange-600" />
+              </div>
+              <span className="text-xs text-orange-600 font-medium">{storageStats.folderCount} folders</span>
+            </div>
+          </div>
+
           <button
             onClick={handleLogout}
-            className="w-full py-2.5 rounded-lg border border-red-200 text-red-700 font-medium hover:border-red-800 transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
+            className="w-full py-2.5 rounded-lg border border-amber-300 text-amber-700 font-medium hover:bg-amber-50 hover:border-amber-500 transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
           >
             <LogOut className="w-4 h-4" />
             Logout
@@ -558,13 +629,13 @@ const DashboardLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col w-full md:w-auto">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-sm">
+        <header className="sticky top-0 z-30 bg-white border-b border-amber-200 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-sm">
           {/* Left Section */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-lg transition-all duration-200"
+              className="md:hidden p-2 text-amber-600 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-all duration-200"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
@@ -573,21 +644,27 @@ const DashboardLayout = ({ children }) => {
             {/* Document Icon & Welcome */}
             <div className="flex items-center gap-3">
               <div className="hidden sm:flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl flex items-center justify-center shadow-sm">
-                  <FileText className="w-4.5 h-4.5 text-indigo-600" />
+                <div className="relative">
+                  <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-amber-100 rounded-full"></div>
+                  <div className="w-9 h-9 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl flex items-center justify-center shadow-sm border border-amber-100">
+                    <FileText className="w-4.5 h-4.5 text-amber-600" />
+                  </div>
                 </div>
-                <div className="h-6 w-px bg-slate-300"></div>
+                <div className="h-6 w-px bg-amber-200"></div>
               </div>
 
               <div>
-                <h1 className="text-sm sm:text-base md:text-lg font-semibold text-slate-800">
-                  <span className="text-slate-500 font-normal">
-                    Welcome back,{" "}
-                  </span>
-                  <span className="bg-gradient-to-r from-indigo-600 to-indigo-700 bg-clip-text text-transparent font-bold">
-                    {user?.name || "User"}
-                  </span>
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-sm sm:text-base md:text-lg font-semibold text-slate-800">
+                    <span className="text-slate-500 font-normal">
+                      Welcome back,{" "}
+                    </span>
+                    <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent font-bold">
+                      {user?.name || "User"}
+                    </span>
+                  </h1>
+                  <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+                </div>
                 <p className="text-xs text-slate-500 hidden sm:flex items-center gap-1.5 mt-0.5 font-medium">
                   <Clock className="w-3 h-3" />
                   {new Date().toLocaleDateString("en-US", {
@@ -605,29 +682,41 @@ const DashboardLayout = ({ children }) => {
           <div className="flex items-center gap-2">
             {/* Quick Stats */}
             <div className="hidden md:flex items-center gap-2.5 mr-2">
-              <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg shadow-sm border border-indigo-100">
-                <File className="w-4 h-4 text-indigo-600" />
-                <span className="text-xs font-semibold text-indigo-700">
+              <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg shadow-sm border border-amber-200">
+                <File className="w-4 h-4 text-amber-600" />
+                <span className="text-xs font-semibold text-amber-700">
                   {storageStats.fileCount} files
                 </span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-violet-50 to-violet-100 rounded-lg shadow-sm border border-violet-100">
-                <Folder className="w-4 h-4 text-violet-600" />
-                <span className="text-xs font-semibold text-violet-700">
+              <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg shadow-sm border border-orange-200">
+                <Folder className="w-4 h-4 text-orange-600" />
+                <span className="text-xs font-semibold text-orange-700">
                   {storageStats.folderCount} folders
                 </span>
               </div>
+            </div>
+
+            {/* Storage Badge */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 rounded-full border border-amber-200 shadow-sm">
+              <HardDrive className="w-3.5 h-3.5 text-amber-600" />
+              <span className="text-xs font-medium text-amber-700">{usedGB} GB / {totalGB} GB</span>
+            </div>
+
+            {/* Users Badge */}
+            <div className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-orange-50 to-amber-50 rounded-full border border-orange-200 shadow-sm">
+              <Users className="w-3.5 h-3.5 text-orange-600" />
+              <span className="text-xs font-medium text-orange-700">10k+ Users</span>
             </div>
 
             {/* Notifications */}
             <div className="relative" ref={notificationRef}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                className="relative p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-br from-rose-500 to-rose-600 rounded-full text-white text-xs flex items-center justify-center font-semibold shadow-lg shadow-rose-200 animate-pulse">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full text-white text-xs flex items-center justify-center font-semibold shadow-lg shadow-amber-200 animate-pulse">
                     {unreadCount}
                   </span>
                 )}
@@ -639,13 +728,13 @@ const DashboardLayout = ({ children }) => {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowNotifications(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden">
-                    <div className="px-4 py-3 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-slate-800">
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-amber-200 z-50 overflow-hidden">
+                    <div className="px-4 py-3 bg-gradient-to-r from-amber-50 to-white border-b border-amber-200 flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-amber-800">
                         Notifications
                       </h3>
                       {unreadCount > 0 && (
-                        <span className="text-xs bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-semibold">
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-semibold">
                           {unreadCount} new
                         </span>
                       )}
@@ -653,8 +742,8 @@ const DashboardLayout = ({ children }) => {
                     <div className="max-h-96 overflow-y-auto">
                       {loading ? (
                         <div className="px-4 py-8 text-center">
-                          <div className="w-8 h-8 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-2"></div>
-                          <p className="text-xs text-slate-500 font-medium">
+                          <div className="w-8 h-8 border-2 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-2"></div>
+                          <p className="text-xs text-amber-500 font-medium">
                             Loading notifications...
                           </p>
                         </div>
@@ -663,8 +752,8 @@ const DashboardLayout = ({ children }) => {
                           <Link
                             key={notif.id}
                             to={notif.action || "#"}
-                            className={`block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors ${
-                              !notif.read ? "bg-indigo-50/40" : ""
+                            className={`block px-4 py-3 border-b border-amber-100 hover:bg-amber-50 transition-colors ${
+                              !notif.read ? "bg-amber-50/40" : ""
                             }`}
                             onClick={() => {
                               markAsRead(notif.id);
@@ -682,33 +771,33 @@ const DashboardLayout = ({ children }) => {
                                 <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">
                                   {notif.message}
                                 </p>
-                                <p className="text-xs text-slate-400 mt-1 font-medium">
+                                <p className="text-xs text-amber-400 mt-1 font-medium">
                                   {notif.time}
                                 </p>
                               </div>
                               {!notif.read && (
-                                <span className="w-2 h-2 bg-indigo-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></span>
+                                <span className="w-2 h-2 bg-amber-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></span>
                               )}
                             </div>
                           </Link>
                         ))
                       ) : (
                         <div className="px-4 py-8 text-center">
-                          <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                          <p className="text-sm text-slate-500 font-medium">
+                          <Bell className="w-8 h-8 text-amber-300 mx-auto mb-2" />
+                          <p className="text-sm text-amber-500 font-medium">
                             No notifications
                           </p>
-                          <p className="text-xs text-slate-400 mt-1">
+                          <p className="text-xs text-amber-400 mt-1">
                             You're all caught up!
                           </p>
                         </div>
                       )}
                     </div>
                     {notifications.length > 0 && (
-                      <div className="px-4 py-2.5 bg-gradient-to-r from-slate-50 to-white border-t border-slate-200 text-center">
+                      <div className="px-4 py-2.5 bg-gradient-to-r from-amber-50 to-white border-t border-amber-200 text-center">
                         <button
                           onClick={markAllAsRead}
-                          className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold"
+                          className="text-xs text-amber-600 hover:text-amber-700 font-semibold"
                         >
                           Mark all as read
                         </button>
@@ -723,8 +812,8 @@ const DashboardLayout = ({ children }) => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white flex items-center justify-center font-semibold text-sm
-                  hover:shadow-lg hover:shadow-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 text-white flex items-center justify-center font-semibold text-sm
+                  hover:shadow-lg hover:shadow-amber-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500
                   transition-all duration-200"
               >
                 {avatarLetter}
@@ -736,39 +825,39 @@ const DashboardLayout = ({ children }) => {
                     className="fixed inset-0 z-40"
                     onClick={() => setIsDropdownOpen(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden">
-                    <div className="px-4 py-3 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
-                      <p className="text-sm font-semibold text-slate-800">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-amber-200 z-50 overflow-hidden">
+                    <div className="px-4 py-3 bg-gradient-to-r from-amber-50 to-white border-b border-amber-200">
+                      <p className="text-sm font-semibold text-amber-800">
                         {user?.name || "User"}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1 font-medium">
+                      <p className="text-xs text-amber-500 mt-1 font-medium">
                         {user?.email || "user@example.com"}
                       </p>
                     </div>
                     <div className="py-1">
                       <Link
                         to="/profile"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-amber-50 font-medium"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        <User className="w-4 h-4 text-slate-500" />
+                        <User className="w-4 h-4 text-amber-500" />
                         <span>Profile</span>
                       </Link>
                       <Link
                         to="/privacy"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-amber-50 font-medium"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        <Shield className="w-4 h-4 text-slate-500" />
+                        <Shield className="w-4 h-4 text-amber-500" />
                         <span>Privacy Policy</span>
                       </Link>
-                      <div className="border-t border-slate-100 my-1"></div>
+                      <div className="border-t border-amber-100 my-1"></div>
                       <button
                         onClick={() => {
                           handleLogout();
                           setIsDropdownOpen(false);
                         }}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 w-full text-left font-medium"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-amber-600 hover:bg-amber-50 w-full text-left font-medium"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Sign out</span>
@@ -782,7 +871,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
           {children}
         </main>
       </div>
@@ -798,16 +887,16 @@ const NavItem = ({ to, icon, children, active }) => (
     to={to}
     className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
       active
-        ? "bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 shadow-sm border border-indigo-100"
-        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        ? "bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 shadow-sm border border-amber-200"
+        : "text-slate-600 hover:bg-amber-50 hover:text-amber-700"
     }`}
   >
-    <span className={`${active ? "text-indigo-600" : "text-slate-400"}`}>
+    <span className={`${active ? "text-amber-600" : "text-slate-400"}`}>
       {icon}
     </span>
     <span className="font-medium flex-1">{children}</span>
     {active && (
-      <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 shadow-sm"></span>
+      <span className="w-1.5 h-1.5 rounded-full bg-amber-600 shadow-sm"></span>
     )}
   </Link>
 );
@@ -818,11 +907,11 @@ const MobileNavItem = ({ to, icon, children, active }) => (
     to={to}
     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
       active
-        ? "bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 shadow-sm border border-indigo-100"
-        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        ? "bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 shadow-sm border border-amber-200"
+        : "text-slate-600 hover:bg-amber-50 hover:text-amber-700"
     }`}
   >
-    <span className={active ? "text-indigo-600" : "text-slate-400"}>
+    <span className={active ? "text-amber-600" : "text-slate-400"}>
       {icon}
     </span>
     <span className="font-medium flex-1">{children}</span>
