@@ -606,8 +606,6 @@ const DashboardLayout = ({ children }) => {
             ></div>
           </div>
 
-        
-
           <button
             onClick={handleLogout}
             className="w-full py-2.5 rounded-lg border border-amber-300 text-amber-700 font-medium hover:bg-amber-50 hover:border-amber-500 transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
@@ -687,7 +685,6 @@ const DashboardLayout = ({ children }) => {
                 </span>
               </div>
             </div>
-
 
             {/* Notifications */}
             <div className="relative" ref={notificationRef}>
