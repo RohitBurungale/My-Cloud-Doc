@@ -376,7 +376,7 @@ const Login = () => {
                     <span className="flex items-center justify-center gap-3">
                       <LogIn className="w-5 h-5" />
                       Sign In
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    
                     </span>
                   )}
                 </button>
