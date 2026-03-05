@@ -11,7 +11,9 @@ import {
   Mail,
   User,
   Key,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 const Register = () => {
@@ -20,6 +22,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -70,7 +73,7 @@ const Register = () => {
                   animate-progress" />
               </div>
               <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 flex items-center justify-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
                 Redirecting to login...
               </p>
             </div>
@@ -170,18 +173,26 @@ const Register = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Full Name
                     </label>
-                    <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        type="text"
-                        placeholder="John Doe"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg
-                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                          transition-all duration-200 text-base"
-                      />
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 
+                        rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity blur" />
+                      <div className="relative">
+                        <User className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 
+                          group-focus-within:text-indigo-600 transition-colors" />
+                        <input
+                          type="text"
+                          placeholder="John Doe"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                          disabled={success}
+                          className="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg
+                            focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200
+                            disabled:bg-gray-100 disabled:cursor-not-allowed disabled:border-gray-200
+                            placeholder:text-gray-400 text-gray-900
+                            transition-all duration-200 text-base"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -190,18 +201,26 @@ const Register = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Email Address
                     </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg
-                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                          transition-all duration-200 text-base"
-                      />
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 
+                        rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity blur" />
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 
+                          group-focus-within:text-indigo-600 transition-colors" />
+                        <input
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          disabled={success}
+                          className="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg
+                            focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200
+                            disabled:bg-gray-100 disabled:cursor-not-allowed disabled:border-gray-200
+                            placeholder:text-gray-400 text-gray-900
+                            transition-all duration-200 text-base"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -210,18 +229,36 @@ const Register = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Password
                     </label>
-                    <div className="relative">
-                      <Key className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        type="password"
-                        placeholder="Create a strong password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full pl-11 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg
-                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                          transition-all duration-200 text-base"
-                      />
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 
+                        rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity blur" />
+                      <div className="relative">
+                        <Key className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 
+                          group-focus-within:text-indigo-600 transition-colors" />
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a strong password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          disabled={success}
+                          className="w-full pl-11 pr-12 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg
+                            focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200
+                            disabled:bg-gray-100 disabled:cursor-not-allowed disabled:border-gray-200
+                            placeholder:text-gray-400 text-gray-900
+                            transition-all duration-200 text-base"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3.5 top-1/2 transform -translate-y-1/2 
+                            text-gray-400 hover:text-indigo-600 transition-colors
+                            disabled:hidden"
+                          disabled={success}
+                        >
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
                     </div>
                     <p className="text-xs text-gray-500 mt-1.5 sm:mt-2 flex items-start gap-1.5">
                       <span className="text-indigo-600">💡</span>

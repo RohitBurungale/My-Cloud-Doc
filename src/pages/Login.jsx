@@ -128,12 +128,12 @@ const Login = () => {
             <div className="hidden lg:flex flex-col bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
               
               {/* Animated Gradient Header */}
-              <div className="h-48 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+              <div className="h-48 bg-gradient-to-r from-white via-white to-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-white backdrop-blur-sm" />
                 
                 {/* Floating Orbs */}
-                <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/20 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/20 rounded-full blur-3xl animate-pulse delay-700" />
+                <div className="absolute -top-20 -right-20 w-60 h-60 bg-white rounded-full blur-3xl animate-pulse" />
+                <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white rounded-full blur-3xl animate-pulse delay-700" />
                 
                 {/* 3D Card Effect */}
                 <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/20 to-transparent" />
@@ -141,15 +141,15 @@ const Login = () => {
                 {/* Logo */}
                 <div className="absolute bottom-6 left-8 flex items-center gap-3">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-white/30 rounded-2xl blur-xl" />
-                    <div className="relative w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 
+                    <div className="absolute inset-0 bg-white rounded-2xl blur-xl" />
+                    <div className="relative w-16 h-16 bg-indigo-600 backdrop-blur-md rounded-2xl border border-indigo-600 
                       flex items-center justify-center shadow-2xl">
                       <Cloud className="w-8 h-8 text-white" />
                     </div>
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold text-white">CloudDoc</h1>
-                    <p className="text-white/80 text-sm">Secure Document Storage</p>
+                    <h1 className="text-3xl font-bold text-indigo-600">CloudDoc</h1>
+                    <p className="text-indigo-800 text-sm">Secure Document Storage</p>
                   </div>
                 </div>
               </div>
@@ -227,8 +227,7 @@ const Login = () => {
               
               {/* Mobile Header */}
               <div className="lg:hidden text-center mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 
-                  text-white rounded-full mb-4 shadow-lg">
+                <div>
                   <Cloud className="w-4 h-4" />
                   <span className="text-sm font-semibold">CloudDoc</span>
                 </div>
