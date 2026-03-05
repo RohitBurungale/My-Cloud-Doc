@@ -177,7 +177,7 @@ const Login = () => {
                   {[
                     { icon: Shield, title: "256-bit AES", desc: "Military-grade", color: "blue" },
                     { icon: Fingerprint, title: "Zero-Knowledge", desc: "Privacy first", color: "indigo" },
-                    { icon: HardDrive, title: "5GB Free", desc: "Secure storage", color: "purple" },
+                    { icon: HardDrive, title: "Free Storage", desc: "Secure storage", color: "purple" },
                     { icon: Zap, title: "Real-time", desc: "Instant sync", color: "blue" }
                   ].map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-3 p-4 bg-gradient-to-br from-gray-50 to-white 
