@@ -193,7 +193,7 @@ const FoldersPage = () => {
     );
   };
 
-  // Create Folder Modal - Responsive
+  // Create Folder Modal - Responsive (FIXED VERSION)
   const CreateFolderModal = () => {
     if (!showCreateModal) return null;
 
@@ -223,7 +223,7 @@ const FoldersPage = () => {
                 placeholder="e.g., Personal Documents"
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base
                   border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 
-                  focus:border-blue-500 outline-none"
+                  focus:border-blue-500 outline-none text-gray-900 bg-white"
                 value={newFolder.name}
                 onChange={(e) => setNewFolder({...newFolder, name: e.target.value})}
                 autoFocus
@@ -253,7 +253,7 @@ const FoldersPage = () => {
                   placeholder="Enter folder password"
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base
                     border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 
-                    focus:border-orange-500 outline-none"
+                    focus:border-orange-500 outline-none text-gray-900 bg-white"
                   value={newFolder.password}
                   onChange={(e) => setNewFolder({...newFolder, password: e.target.value})}
                 />

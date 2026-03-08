@@ -13,9 +13,6 @@ import {
   User,
   Shield,
   LogOut,
-  Settings,
-  HelpCircle,
-  ChevronRight,
   Bell,
   Search,
   Cloud,
@@ -26,10 +23,10 @@ import {
   CheckCircle,
   Zap,
   Globe,
-  Fingerprint,
   Sparkles,
   Lock,
   Users,
+  Mail,
 } from "lucide-react";
 import {
   databases,
@@ -47,6 +44,7 @@ const DashboardLayout = ({ children }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Storage and file stats
   const [storageStats, setStorageStats] = useState({
@@ -63,9 +61,9 @@ const DashboardLayout = ({ children }) => {
   const mobileMenuRef = useRef(null);
   const notificationRef = useRef(null);
 
-  // Format bytes to human readable
+  // Format bytes to human readable - IMPROVED
   const formatBytes = (bytes) => {
-    if (bytes === 0) return "0 B";
+    if (bytes === 0 || bytes === undefined || bytes === null) return "0 B";
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -94,7 +92,7 @@ const DashboardLayout = ({ children }) => {
     }
   };
 
-  // Fetch user data and generate notifications
+  // Fetch user data and generate notifications - FIXED STORAGE CALCULATOR
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user || !user.$id) return;
@@ -115,11 +113,13 @@ const DashboardLayout = ({ children }) => {
         const documents = response.documents;
         console.log("Documents found:", documents.length);
 
-        // Calculate total storage used
-        const totalBytes = documents.reduce(
-          (acc, doc) => acc + (doc.fileSize || 0),
-          0,
-        );
+        // Calculate total storage used - FIXED
+        let totalBytes = 0;
+        documents.forEach(doc => {
+          // Check for different possible field names for file size
+          const fileSize = doc.size || doc.fileSize || doc.file_size || 0;
+          totalBytes += Number(fileSize) || 0;
+        });
 
         // Get folder count (try/catch in case collection doesn't exist)
         let folderCount = 0;
@@ -140,9 +140,14 @@ const DashboardLayout = ({ children }) => {
           );
         }
 
+        // Log the calculated values for debugging
+        console.log("Total bytes used:", totalBytes);
+        console.log("File count:", documents.length);
+        console.log("Folder count:", folderCount);
+
         setStorageStats({
           used: totalBytes,
-          total: 5 * 1024 * 1024 * 1024,
+          total: 5 * 1024 * 1024 * 1024, // 5GB in bytes
           fileCount: documents.length,
           folderCount: folderCount,
         });
@@ -151,7 +156,7 @@ const DashboardLayout = ({ children }) => {
         const timestamp = Date.now();
 
         // 1. Storage warning notification
-        const usedPercent = (totalBytes / (5 * 1024 * 1024 * 1024)) * 100;
+        const usedPercent = totalBytes > 0 ? (totalBytes / (5 * 1024 * 1024 * 1024)) * 100 : 0;
         if (usedPercent > 80) {
           newNotifications.push({
             id: `storage-${timestamp}`,
@@ -177,7 +182,7 @@ const DashboardLayout = ({ children }) => {
             type: "upload",
             icon: <File className="w-4 h-4 text-amber-600" />,
             title: "File Uploaded",
-            message: `"${file.fileName || "Unnamed file"}" was added to your documents`,
+            message: `"${file.fileName || file.name || "Unnamed file"}" was added to your documents`,
             time: formatRelativeTime(file.$createdAt),
             read: index === 0 ? false : true,
             action: "/documents",
@@ -215,7 +220,7 @@ const DashboardLayout = ({ children }) => {
               type: "expiring",
               icon: <AlertCircle className="w-4 h-4 text-amber-600" />,
               title: "File Expiring Soon",
-              message: `"${item.fileName || "Unnamed file"}" will be permanently deleted in ${daysLeft} days`,
+              message: `"${item.fileName || item.name || "Unnamed file"}" will be permanently deleted in ${daysLeft} days`,
               time: `${daysLeft} days left`,
               read: false,
               action: "/trash",
@@ -299,12 +304,32 @@ const DashboardLayout = ({ children }) => {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const usedPercent = (storageStats.used / storageStats.total) * 100;
-  const usedGB = (storageStats.used / (1024 * 1024 * 1024)).toFixed(1);
+  
+  // Calculate storage values with safety checks - FIXED
+  const usedGB = storageStats.used > 0 
+    ? (storageStats.used / (1024 * 1024 * 1024)).toFixed(1) 
+    : "0";
   const totalGB = (storageStats.total / (1024 * 1024 * 1024)).toFixed(0);
+  const usedPercent = storageStats.total > 0 && storageStats.used > 0
+    ? (storageStats.used / storageStats.total) * 100 
+    : 0;
+  
+  // Format for display
+  const formattedUsed = storageStats.used > 0 
+    ? formatBytes(storageStats.used) 
+    : "0 B";
+  const formattedTotal = formatBytes(storageStats.total);
+  const formattedFree = storageStats.total - storageStats.used > 0 
+    ? formatBytes(storageStats.total - storageStats.used) 
+    : "0 B";
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    console.log("Searching for:", searchQuery);
+  };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
+    <div className="h-screen flex bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 overflow-hidden">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
@@ -313,132 +338,105 @@ const DashboardLayout = ({ children }) => {
         />
       )}
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar - Enhanced with FIXED STORAGE SECTION */}
       <aside
         ref={mobileMenuRef}
-        className={`fixed md:hidden top-0 left-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-r border-amber-200 ${
+        className={`fixed md:hidden top-0 left-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-r border-amber-200 overflow-y-auto ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{ 
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.2), 0 10px 20px -5px rgba(0, 0, 0, 0.1)',
+          WebkitOverflowScrolling: 'touch'
+        }}
       >
-        {/* Header with Document Icon */}
-        <div className="px-5 py-6 flex items-center justify-between border-b border-amber-100 bg-gradient-to-r from-amber-50/90 via-white to-orange-50/90">
-          <div className="flex items-center gap-4">
-            <div className="relative flex items-center">
-              <div className="absolute -left-1.5 -top-1.5 w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center animate-pulse shadow-sm">
-                <FileText className="w-2.5 h-2.5 text-amber-600" />
+        {/* Header with Enhanced Logo */}
+        <div className="sticky top-0 z-10 px-5 py-6 bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b border-amber-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Animated Logo */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-amber-400/30 rounded-xl blur-md animate-pulse" />
+                <div className="relative w-11 h-11 bg-gradient-to-br from-amber-600 to-amber-700 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200/50">
+                  <Cloud className="w-6 h-6 text-white" />
+                </div>
               </div>
-
-              <div className="w-11 h-11 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200/50 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                <Cloud className="w-5.5 h-5.5 text-white relative z-10" />
-              </div>
-
-              <div className="absolute -right-1.5 -bottom-1.5 w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center animate-pulse delay-300 shadow-sm">
-                <Lock className="w-2.5 h-2.5 text-orange-600" />
-              </div>
-
-              <div className="absolute -right-3 top-1/2 w-1.5 h-1.5 bg-amber-300 rounded-full animate-ping opacity-50" />
-              <div className="absolute -left-3 bottom-1/2 w-1 h-1 bg-orange-300 rounded-full animate-ping delay-500 opacity-50" />
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent tracking-tight">
-                  CloudDoc
+              <div>
+                <span className="text-xl font-bold bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
+                  MyCloudDoc
                 </span>
-
-                <div className="flex items-center gap-1 ml-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse delay-150"></div>
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse delay-300"></div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 mt-1">
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
-                  <Shield className="w-3 h-3 text-amber-600" />
-                  <span className="text-[10px] font-medium text-amber-700">
-                    Secure
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-50 rounded-full border border-orange-200">
-                  <Zap className="w-3 h-3 text-orange-600" />
-                  <span className="text-[10px] font-medium text-orange-700">
-                    Fast
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
-                  <Globe className="w-3 h-3 text-amber-600" />
-                  <span className="text-[10px] font-medium text-amber-700">
-                    Global
-                  </span>
-                </div>
+                <p className="text-xs text-amber-600 font-medium">Secure Storage</p>
               </div>
             </div>
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2.5 bg-white rounded-xl border border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all shadow-sm"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-
-          <button
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
-        {/* User Info */}
-        <div className="px-5 py-5 bg-gradient-to-br from-amber-50 to-white border-b border-amber-200">
+        {/* User Profile Section */}
+        <div className="px-5 py-5 bg-gradient-to-b from-amber-50/50 to-white border-b border-amber-100">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-amber-200">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-amber-200">
                 {avatarLetter}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
             </div>
-
+            
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-800 truncate">
-                {user?.name || "User"}
+              <p className="text-base font-bold text-gray-800 truncate">
+                {user?.name || "Guest User"}
               </p>
-              <p className="text-xs text-slate-500 truncate flex items-center gap-1.5 mt-0.5">
-                <File className="w-3 h-3" />
-                {user?.email || "user@example.com"}
+              <p className="text-sm text-amber-600 truncate flex items-center gap-1.5 mt-0.5">
+                <Mail className="w-3.5 h-3.5" />
+                {user?.email || "guest@example.com"}
               </p>
             </div>
           </div>
 
-          {/* Storage Indicator */}
-          <div className="mt-4 pt-4 border-t border-amber-200">
-            <div className="flex items-center justify-between text-xs mb-2">
-              <span className="text-amber-600 flex items-center gap-1.5 font-medium">
-                <HardDrive className="w-3.5 h-3.5" />
-                Storage Usage
-              </span>
-              <span className="text-amber-700 font-semibold">
-                {usedGB} GB / {totalGB} GB
-              </span>
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="bg-white p-2.5 rounded-xl border border-amber-100 text-center">
+              <p className="text-xs text-gray-500">Files</p>
+              <p className="text-base font-bold text-amber-700">{storageStats.fileCount}</p>
             </div>
-            <div className="w-full bg-amber-100 rounded-full h-2 shadow-inner">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 shadow-sm ${
-                  usedPercent > 90
-                    ? "bg-gradient-to-r from-amber-500 to-orange-600"
-                    : usedPercent > 70
-                      ? "bg-gradient-to-r from-amber-500 to-amber-600"
-                      : "bg-gradient-to-r from-amber-600 to-orange-600"
-                }`}
-                style={{ width: `${Math.min(usedPercent, 100)}%` }}
-              ></div>
+            <div className="bg-white p-2.5 rounded-xl border border-amber-100 text-center">
+              <p className="text-xs text-gray-500">Folders</p>
+              <p className="text-base font-bold text-amber-700">{storageStats.folderCount}</p>
             </div>
+    
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {/* Search Bar */}
+        <div className="px-5 py-3">
+          <form onSubmit={handleSearch} className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search files, folders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900
+                focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
+                placeholder:text-gray-400 transition-all"
+            />
+          </form>
+        </div>
+
+        {/* Main Navigation */}
+        <nav className="flex-1 px-3 py-2">
+          <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Menu</p>
+          
           <MobileNavItem
             to="/dashboard"
-            icon={<Home className="w-4 h-4" />}
+            icon={<Home className="w-5 h-5" />}
             active={location.pathname === "/dashboard"}
           >
             Dashboard
@@ -446,7 +444,7 @@ const DashboardLayout = ({ children }) => {
 
           <MobileNavItem
             to="/documents"
-            icon={<FileText className="w-4 h-4" />}
+            icon={<FileText className="w-5 h-5" />}
             active={location.pathname === "/documents"}
           >
             Documents
@@ -454,7 +452,7 @@ const DashboardLayout = ({ children }) => {
 
           <MobileNavItem
             to="/folders"
-            icon={<Folder className="w-4 h-4" />}
+            icon={<Folder className="w-5 h-5" />}
             active={location.pathname === "/folders"}
           >
             Protected Folders
@@ -462,7 +460,7 @@ const DashboardLayout = ({ children }) => {
 
           <MobileNavItem
             to="/favorites"
-            icon={<Star className="w-4 h-4" />}
+            icon={<Star className="w-5 h-5" />}
             active={location.pathname === "/favorites"}
           >
             Favorites
@@ -470,48 +468,91 @@ const DashboardLayout = ({ children }) => {
 
           <MobileNavItem
             to="/trash"
-            icon={<Trash2 className="w-4 h-4" />}
+            icon={<Trash2 className="w-5 h-5" />}
             active={location.pathname === "/trash"}
           >
             Trash
           </MobileNavItem>
 
-          <div className="pt-4 mt-4 border-t border-amber-200">
-            <MobileNavItem
-              to="/profile"
-              icon={<User className="w-4 h-4" />}
-              active={location.pathname === "/profile"}
-            >
-              Profile
-            </MobileNavItem>
-
-            <MobileNavItem
-              to="/privacy"
-              icon={<Shield className="w-4 h-4" />}
-              active={location.pathname === "/privacy"}
-            >
-              Privacy Policy
-            </MobileNavItem>
+          {/* Storage Usage - FIXED FOR MOBILE with detailed info */}
+          <div className="px-3 mt-6 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-gray-500 flex items-center gap-1">
+                <HardDrive className="w-3.5 h-3.5" />
+                Storage Used
+              </span>
+              <span className="text-xs font-semibold text-amber-700">
+                {formattedUsed} / {formattedTotal}
+              </span>
+            </div>
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(usedPercent, 100)}%` }}
+              />
+            </div>
+            {/* Additional storage info for mobile */}
+            <div className="flex items-center justify-between mt-2 text-xs">
+              <span className="text-gray-500">Free: <span className="font-medium text-gray-700">{formattedFree}</span></span>
+              <span className="text-gray-500">{usedPercent.toFixed(1)}% used</span>
+            </div>
           </div>
+
+          <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-4">Settings</p>
+
+          <MobileNavItem
+            to="/profile"
+            icon={<User className="w-5 h-5" />}
+            active={location.pathname === "/profile"}
+          >
+            Profile
+          </MobileNavItem>
+
+          <MobileNavItem
+            to="/privacy"
+            icon={<Shield className="w-5 h-5" />}
+            active={location.pathname === "/privacy"}
+          >
+            Privacy Policy
+          </MobileNavItem>
         </nav>
 
-        {/* Logout Button */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-amber-50 via-white to-transparent border-t border-amber-200">
+        {/* Logout Button with Upgrade Banner */}
+        <div className="sticky bottom-0 bg-white border-t border-amber-200 p-4">
+          {/* Upgrade Banner */}
+          <div className="mb-3 p-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-sm font-bold">Upgrade to Pro</span>
+            </div>
+            <p className="text-xs text-amber-100 mb-2">Get 50GB storage & more features</p>
+            <button className="w-full py-1.5 bg-white text-amber-700 rounded-lg text-xs font-bold hover:bg-amber-50 transition-colors">
+              View Plans
+            </button>
+          </div>
+
+          {/* Logout Button */}
           <button
             onClick={() => {
               handleLogout();
               setIsMobileMenuOpen(false);
             }}
-            className="w-full py-3 rounded-lg border border-amber-300 text-amber-700 font-semibold hover:bg-amber-50 hover:border-amber-500 transition-all flex items-center justify-center gap-2 shadow-sm"
+            className="w-full py-3 rounded-xl border-2 border-amber-200 text-amber-700 font-semibold 
+              hover:bg-amber-50 hover:border-amber-300 transition-all flex items-center justify-center gap-2
+              active:scale-95"
           >
             <LogOut className="w-4 h-4" />
             Logout
           </button>
+          
+          <p className="text-center text-xs text-gray-400 mt-3">
+            Version 2.0.0
+          </p>
         </div>
       </aside>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-64 bg-white border-r border-amber-200 flex-col shadow-sm">
+      <aside className="hidden md:flex md:w-64 bg-white border-r border-amber-200 flex-col shadow-sm h-screen overflow-y-auto">
         <div className="px-6 py-6 border-b border-amber-200 bg-gradient-to-br from-amber-50 to-white">
           <div className="flex items-center gap-2.5">
             <div className="relative">
@@ -582,7 +623,7 @@ const DashboardLayout = ({ children }) => {
           </div>
         </nav>
 
-        {/* Storage Info */}
+        {/* Storage Info - Desktop */}
         <div className="p-5 border-t border-amber-200 bg-gradient-to-br from-amber-50 to-white">
           <div className="flex items-center justify-between text-xs mb-2">
             <span className="text-amber-600 flex items-center gap-1.5 font-medium">
@@ -590,7 +631,7 @@ const DashboardLayout = ({ children }) => {
               Storage
             </span>
             <span className="text-amber-700 font-semibold">
-              {usedGB} GB / {totalGB} GB
+              {formattedUsed} / {formattedTotal}
             </span>
           </div>
           <div className="w-full bg-amber-100 rounded-full h-2 mb-4 shadow-inner">
@@ -617,9 +658,9 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col w-full md:w-auto">
+      <div className="flex-1 flex flex-col w-full md:w-auto h-screen overflow-hidden">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white border-b border-amber-200 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-sm">
+        <header className="sticky top-0 z-30 bg-white border-b border-amber-200 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-sm flex-shrink-0">
           {/* Left Section */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {/* Mobile Menu Button */}
@@ -670,7 +711,7 @@ const DashboardLayout = ({ children }) => {
 
           {/* Right Section */}
           <div className="flex items-center gap-2">
-            {/* Quick Stats */}
+            {/* Quick Stats - Desktop */}
             <div className="hidden md:flex items-center gap-2.5 mr-2">
               <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg shadow-sm border border-amber-200">
                 <File className="w-4 h-4 text-amber-600" />
@@ -848,8 +889,8 @@ const DashboardLayout = ({ children }) => {
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
+        {/* Main Content Area - NOW SCROLLABLE */}
+        <main className="flex-1 p-3 sm:p-4 md:p-6 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 overflow-y-auto">
           {children}
         </main>
       </div>
@@ -883,13 +924,18 @@ const NavItem = ({ to, icon, children, active }) => (
 const MobileNavItem = ({ to, icon, children, active }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
       active
-        ? "bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 shadow-sm border border-amber-200"
-        : "text-slate-600 hover:bg-amber-50 hover:text-amber-700"
+        ? "bg-gradient-to-r from-amber-100 to-amber-50 text-amber-800 border border-amber-200 shadow-sm"
+        : "text-gray-600 hover:bg-amber-50 hover:text-amber-700"
     }`}
   >
-    <span className={active ? "text-amber-600" : "text-slate-400"}>{icon}</span>
+    <span className={active ? "text-amber-600" : "text-gray-400 group-hover:text-amber-600"}>
+      {icon}
+    </span>
     <span className="font-medium flex-1">{children}</span>
+    {active && (
+      <span className="w-1.5 h-1.5 rounded-full bg-amber-600 shadow-sm"></span>
+    )}
   </Link>
 );
